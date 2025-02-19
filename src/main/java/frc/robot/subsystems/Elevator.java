@@ -7,12 +7,16 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.controls.Follower;
+import static frc.robot.Utility.Constants.ElevatorConstants.*;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase
 {
     TalonFX elevator_motor = new TalonFX(20);
+    TalonFX elevator_motor_2 = new TalonFX(21);
+    
 
     TalonFXConfiguration elevator_config = new TalonFXConfiguration();
 
@@ -20,11 +24,21 @@ public class Elevator extends SubsystemBase
     CurrentLimitsConfigs currentLimit = elevator_config.CurrentLimits;
     MotionMagicConfigs motionMagicConfigs =  elevator_config.MotionMagic;
     
+    MotionMagicExpoVoltage elevator_motion_request = new MotionMagicExpoVoltage(0);
 
-    final MotionMagicExpoVoltage m_request = new MotionMagicExpoVoltage(0);
+    
+    
+
+
+
+    double elevator_position;
+    double elevator_setpoint;
+    double wrist_angle;
 
     public Elevator()
     {
+        
+        elevator_motor_2.setControl(new Follower(elevator_motor.getDeviceID(), false));
         currentLimit.StatorCurrentLimit = 10; //we'll definitely raise this, but should help not break anything at first
         
         elevator_config.Feedback.SensorToMechanismRatio = 1; //convert rotations to inches
@@ -50,11 +64,25 @@ public class Elevator extends SubsystemBase
         
     }    
 
-
-
-
-    void goToPosition()
+    @Override
+    public void periodic() 
     {
-        elevator_motor.setControl(m_request.withPosition(1).withEnableFOC(true));
+        elevator_position = elevator_motor.getPosition(true).getValueAsDouble();
+    }
+
+
+    void goToPosition_wrist(double angle)
+    {
+        //dont let the wrist crash into the frame at low angles
+        if(elevator_position < elevator_danger || elevator_setpoint < elevator_danger)
+        {
+            angle = wrist_safe_up;
+        }
+    }
+
+    void goToPosition_elevator(double position)
+    {
+        elevator_setpoint = position;
+        elevator_motor.setControl(elevator_motion_request.withPosition(position).withEnableFOC(true));
     }
 }

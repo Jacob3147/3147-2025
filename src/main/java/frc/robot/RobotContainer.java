@@ -16,6 +16,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,18 +24,16 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.generated.TunerConstants;
+import frc.robot.Utility.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import static frc.robot.Utility.Constants.GlobalConstants.*;
 
-public class RobotContainer {
+public class RobotContainer 
+{
 
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond); // max angular velocity
 
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    private final Telemetry logger = new Telemetry(TunerConstants.kMaxSpeed);
 
     //private final CommandXboxController joystick = new CommandXboxController(0);
     private final CommandJoystick joystick = new CommandJoystick(0);
@@ -42,8 +41,8 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     
     private SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1)
-            .withRotationalDeadband(MaxAngularRate * 0.2) // Add deadband
+            .withDeadband(TunerConstants.kMaxSpeed* 0.1)
+            .withRotationalDeadband(TunerConstants.kMaxAngularRate * 0.2) // Add deadband
             .withDriveRequestType(DriveRequestType.Velocity)
             .withSteerRequestType(SteerRequestType.MotionMagicExpo)
             .withDesaturateWheelSpeeds(true);
@@ -69,19 +68,24 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
                 drive
-                .withVelocityX(((-1*joystick.getThrottle()+3)/4)*(-1*joystick.getY()) * MaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(((-1*joystick.getThrottle()+3)/4)*(-1*joystick.getX()) * MaxSpeed) // Drive left with negative X (left)
-                .withRotationalRate(((-1*joystick.getThrottle()+3)/4)*(joystick.getTwist() > 0 ? -1 : 1)*Math.pow((-1*joystick.getTwist()),2) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
+                .withVelocityX(((-1 * joystick.getThrottle() + 3)/4)
+                              * (-1 * joystick.getY()) 
+                              * TunerConstants.kMaxSpeed) // Drive forward with negative Y (forward)
+                .withVelocityY(((-1 *joystick.getThrottle() + 3)/4)
+                              * (-1*joystick.getX()) 
+                              * TunerConstants.kMaxSpeed) // Drive left with negative X (left)
+                .withRotationalRate(((-1 * joystick.getThrottle() + 3)/4) 
+                                    * (joystick.getTwist() > 0 ? -1 : 1)
+                                    * Math.pow((-1*joystick.getTwist()),2) 
+                                    * TunerConstants.kMaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
         
+            
+
     
 
         //joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        /*joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));*/
 
-        joystick.button(2).and(joystick.button(7)).whileTrue(drivetrain.wheelRadiusCharacterization());
 
         // reset the field-centric heading
         joystick.trigger().onTrue(
