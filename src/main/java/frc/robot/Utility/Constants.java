@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 import java.io.IOException;
 
+import com.ctre.phoenix6.hardware.DeviceIdentifier;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -46,8 +47,88 @@ public final class Constants
 
     public static final class ElevatorConstants
     {
-        public static double elevator_danger = 1;
-        public static double wrist_safe_up = Units.degreesToRadians(30);
+        public static final int elevator_ID = 20;
+        public static final int carriage_ID = 22;
+        public static final int algae_ID = 23;
+        public static final int algae_intake_1_ID = 24;
+        public static final int algae_intake_2_ID = 25;
+        public static final int coral_ID = 26;
+        public static final int coral_intake_ID = 27;
+        public static final int algae_encoder_port = 0;
+        public static final int coral_encoder_port = 1;
+
+        public static final double algae_offset = 0;
+        public static final double coral_offset = 0;
+       
+        public static final double carriage_start = 0;
+
+        public static final double elevator_ratio = 1;
+        public static final double carriage_ratio = 1;
+
+        public static final double elevator_KG = 0;
+        public static final double elevator_KS = 0;
+        public static final double elevator_KV = 0;
+        public static final double elevator_KP = 0;
+        public static final double elevator_KD = 0;
+
+        public static final double carriage_KG = 0;
+        public static final double carriage_KS = 0;
+        public static final double carriage_KV = 0;
+        public static final double carriage_KP = 0;
+        public static final double carriage_KD = 0;
+
+        public static final double algae_KG = 0;
+        public static final double algae_KS = 0;
+        public static final double algae_KV = 0;
+        public static final double algae_KP = 0;
+        public static final double algae_KD = 0;
+
+        public static final double coral_KG = 0;
+        public static final double coral_KS = 0;
+        public static final double coral_KV = 0;
+        public static final double coral_KP = 0;
+        public static final double coral_KD = 0;
+
+
+        public static final double elevator_SP_NEUTRAL = 0;
+        public static final double elevator_SP_LOAD = 0;
+        public static final double elevator_SP_LEVEL1 = 0;
+        public static final double elevator_SP_LEVEL2 = 0;
+        public static final double elevator_SP_LEVEL3 = 0;
+        public static final double elevator_SP_LEVEL4 = 0;
+        public static final double elevator_SP_ALGAE_HIGH = 0;
+        public static final double elevator_SP_ALGAE_LOW = 0;
+        public static final double elevator_SP_ALGAE_GROUND = 0;
+        public static final double elevator_SP_NET = 0;
+        public static final double elevator_SP_PROCESSOR = 0;
+
+        public static final double carriage_SP_NEUTRAL = 0;
+        public static final double carriage_SP_LOAD = 0;
+        public static final double carriage_SP_LEVEL1 = 0;
+        public static final double carriage_SP_LEVEL2 = 0;
+        public static final double carriage_SP_LEVEL3 = 0;
+        public static final double carriage_SP_LEVEL4 = 0;
+        public static final double carriage_SP_ALGAE_HIGH = 0;
+        public static final double carriage_SP_ALGAE_LOW = 0;
+        public static final double carriage_SP_ALGAE_GROUND = 0;
+        public static final double carriage_SP_NET = 0;
+        public static final double carriage_SP_PROCESSOR = 0;
+
+        public static final double algae_SP_NEUTRAL = 0;
+        public static final double algae_SP_STOW = 60;
+        public static final double algae_SP_ALGAE_HIGH = 0;
+        public static final double algae_SP_ALGAE_LOW = 0;
+        public static final double algae_SP_ALGAE_GROUND = 0;
+        public static final double algae_SP_NET = 0;
+        public static final double algae_SP_PROCESSOR = 0;
+
+        public static final double coral_SP_NEUTRAL = 0;
+        public static final double coral_SP_LOAD = 0;
+        public static final double coral_SP_LEVEL1 = 0;
+        public static final double coral_SP_LEVEL2 = 0;
+        public static final double coral_SP_LEVEL3 = 0;
+        public static final double coral_SP_LEVEL4 = 0;
+        public static final double coral_SP_SAFE = 90;
     }
 
     public static final class LocalizationConstants
