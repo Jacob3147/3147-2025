@@ -18,6 +18,7 @@ import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
@@ -66,29 +67,11 @@ public class Elevator extends SubsystemBase
     double elevator_setpoint;
 
 
-    SparkMax carriage;
-    SparkMaxConfig carriage_config;
-    RelativeEncoder carriage_encoder;
-
-    ProfiledPIDController carriage_PID;
-    ElevatorFeedforward carriage_FF;
+    TalonFX carriage;
+    TalonFXConfiguration carriage_config;
+    MotionMagicExpoVoltage carriage_motion_request = new MotionMagicExpoVoltage(0);
     double carriage_position;
     double carriage_setpoint;
-
-
-    TalonFX algae;
-    SparkMax algae_intake_1;
-    SparkMax algae_intake_2;
-    TalonFXConfiguration algae_config;
-    MotionMagicExpoVoltage algae_motion_request = new MotionMagicExpoVoltage(0);
-    SparkMaxConfig algae_intake_1_config;
-    SparkMaxConfig algae_intake_2_config;
-    DutyCycleEncoder algae_encoder;
-
-    double algae_internal_encoder;
-    double algae_position;
-    double algae_setpoint;
-
 
     TalonFX coral;
     TalonFXS coral_intake;
@@ -96,6 +79,21 @@ public class Elevator extends SubsystemBase
     TalonFXSConfiguration coral_intake_config;
     MotionMagicExpoVoltage coral_motion_request = new MotionMagicExpoVoltage(0);
     DutyCycleEncoder coral_encoder;
+
+
+    SparkMax algae;
+    TalonFX algae_intake_1;
+    TalonFX algae_intake_2;
+    SparkMaxConfig algae_config;
+    TalonFXConfiguration algae_intake_1_config;
+    TalonFXConfiguration algae_intake_2_config;
+
+    ProfiledPIDController algae_PID;
+    ArmFeedforward algae_FF;
+    DutyCycleEncoder algae_encoder;
+    double algae_position;
+    double algae_setpoint;
+
 
     double coral_internal_encoder;
     double coral_position;
@@ -110,18 +108,28 @@ public class Elevator extends SubsystemBase
     {
         this.throttleSupplier = throttleSupplier;
 
-        carriage       = new SparkMax(carriage_ID,       MotorType.kBrushless);
-        algae_intake_1 = new SparkMax(algae_intake_1_ID, MotorType.kBrushless);
-        algae_intake_2 = new SparkMax(algae_intake_2_ID, MotorType.kBrushless);
+        //NEO / Spark Max for algae wrist
+        algae = new SparkMax(algae_ID,          MotorType.kBrushless);
+        algae_config = new SparkMaxConfig();
+        algae_config.inverted(false).smartCurrentLimit(20).voltageCompensation(12).idleMode(IdleMode.kBrake);
+        algae.configure(algae_config,          ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        //Krakens and Minion / TalonFXS for everything else
+        carriage       = new TalonFX(carriage_ID,        "rio");
+        algae_intake_1 = new TalonFX(algae_intake_1_ID,  "rio");
+        algae_intake_2 = new TalonFX(algae_intake_2_ID,  "rio");
         elevator       = new TalonFX (elevator_ID,       "rio");
-        algae          = new TalonFX (algae_ID,          "rio");
         coral          = new TalonFX (coral_ID,          "rio");
         coral_intake   = new TalonFXS(coral_intake_ID,   "rio");
 
 
-        carriage_config       = new SparkMaxConfig();
-        algae_intake_1_config = new SparkMaxConfig();
-        algae_intake_2_config = new SparkMaxConfig();
+        carriage_config       = new TalonFXConfiguration();
+        Slot0Configs carriageSlot0 = carriage_config.Slot0;
+        CurrentLimitsConfigs carriageCurrentLimit = carriage_config.CurrentLimits;
+        MotionMagicConfigs carriageMotionMagicConfigs =  carriage_config.MotionMagic;
+        FeedbackConfigs carriageFeedback = carriage_config.Feedback;
+        MotorOutputConfigs carriageOutputConfig = carriage_config.MotorOutput;
+        
 
         elevator_config = new TalonFXConfiguration();
         Slot0Configs elevatorSlot0 = elevator_config.Slot0;
@@ -130,30 +138,38 @@ public class Elevator extends SubsystemBase
         FeedbackConfigs elevatorFeedback = elevator_config.Feedback;
         MotorOutputConfigs elevatorOutputConfig = elevator_config.MotorOutput;
 
-        algae_config = new TalonFXConfiguration();
-        Slot0Configs algaeSlot0 = algae_config.Slot0;
-        CurrentLimitsConfigs algaeCurrentLimit = algae_config.CurrentLimits;
-        MotionMagicConfigs algaeMotionMagicConfigs =  algae_config.MotionMagic;
-        FeedbackConfigs algaeFeedback = algae_config.Feedback;
-        MotorOutputConfigs algaeOutputConfig = elevator_config.MotorOutput;
-
 
         coral_config  = new TalonFXConfiguration();
         Slot0Configs coralSlot0 = coral_config.Slot0;
         CurrentLimitsConfigs coralCurrentLimit = coral_config.CurrentLimits;
         MotionMagicConfigs coralMotionMagicConfigs =  coral_config.MotionMagic;
         FeedbackConfigs coralFeedback = coral_config.Feedback;
-        MotorOutputConfigs coralOutputConfig = elevator_config.MotorOutput;
+        MotorOutputConfigs coralOutputConfig = coral_config.MotorOutput;
 
 
         coral_intake_config  = new TalonFXSConfiguration();
-        CurrentLimitsConfigs coral_intakeCurrentLimit = coral_intake_config.CurrentLimits;
+        CurrentLimitsConfigs coral_intake_CurrentLimit = coral_intake_config.CurrentLimits;
+        MotorOutputConfigs coral_intake_outputConfig = coral_intake_config.MotorOutput;
 
+
+        algae_intake_1_config = new TalonFXConfiguration();
+        CurrentLimitsConfigs algae_intake1_CurrentLimit = algae_intake_1_config.CurrentLimits;
+        MotorOutputConfigs algae_intake1_outputConfig = algae_intake_1_config.MotorOutput;
+
+        algae_intake_2_config = new TalonFXConfiguration();
+        CurrentLimitsConfigs algae_intake2_CurrentLimit = algae_intake_2_config.CurrentLimits;
+        MotorOutputConfigs algae_intake2_outputConfig = algae_intake_2_config.MotorOutput;
 
         
-        carriage_config      .inverted(false).smartCurrentLimit(20).voltageCompensation(12).idleMode(IdleMode.kBrake);
-        algae_intake_1_config.inverted(false).smartCurrentLimit(20).voltageCompensation(12).idleMode(IdleMode.kBrake);
-        algae_intake_2_config.inverted(false).smartCurrentLimit(20).voltageCompensation(12).idleMode(IdleMode.kBrake).follow(algae_intake_1);
+        carriageSlot0.withGravityType(GravityTypeValue.Arm_Cosine)
+                     .withKV(carriage_KV).withKS(carriage_KS).withKG(carriage_KG)
+                     .withKP(carriage_KP).withKD(carriage_KD);
+        carriageCurrentLimit.withStatorCurrentLimit(10);
+        carriageMotionMagicConfigs.withMotionMagicAcceleration(1)
+                          .withMotionMagicCruiseVelocity(1);
+        carriageFeedback.SensorToMechanismRatio = carriage_ratio;
+        carriageOutputConfig.NeutralMode = NeutralModeValue.Brake;
+        carriageOutputConfig.Inverted = InvertedValue.Clockwise_Positive;
 
 
         elevatorSlot0.withGravityType(GravityTypeValue.Elevator_Static)
@@ -164,16 +180,7 @@ public class Elevator extends SubsystemBase
                           .withMotionMagicCruiseVelocity(1);
         elevatorFeedback.SensorToMechanismRatio = elevator_ratio;
         elevatorOutputConfig.NeutralMode = NeutralModeValue.Brake;
-
-
-        algaeSlot0.withGravityType(GravityTypeValue.Arm_Cosine)
-                     .withKV(algae_KV).withKS(algae_KS).withKG(algae_KG)
-                     .withKP(algae_KP).withKD(algae_KD);
-        algaeCurrentLimit.withStatorCurrentLimit(10);
-        algaeMotionMagicConfigs.withMotionMagicAcceleration(1)
-                          .withMotionMagicCruiseVelocity(1);
-        algaeFeedback.SensorToMechanismRatio = algae_ratio;
-        algaeOutputConfig.NeutralMode = NeutralModeValue.Brake;
+        elevatorOutputConfig.Inverted = InvertedValue.Clockwise_Positive;
 
 
         coralSlot0.withGravityType(GravityTypeValue.Arm_Cosine)
@@ -184,28 +191,33 @@ public class Elevator extends SubsystemBase
                           .withMotionMagicCruiseVelocity(1);
         coralFeedback.SensorToMechanismRatio = coral_ratio;
         coralOutputConfig.NeutralMode = NeutralModeValue.Brake;
+        coralOutputConfig.Inverted = InvertedValue.Clockwise_Positive;
 
 
-        coral_intakeCurrentLimit.withStatorCurrentLimit(10);
+        coral_intake_CurrentLimit.withStatorCurrentLimit(10);
+        coral_intake_outputConfig.Inverted = InvertedValue.Clockwise_Positive;
 
-        
-        carriage      .configure(carriage_config,       ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        algae_intake_1.configure(algae_intake_1_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        algae_intake_2.configure(algae_intake_2_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        algae       .getConfigurator().apply(algae_config);
-        elevator    .getConfigurator().apply(elevator_config);
-        coral       .getConfigurator().apply(coral_config);
-        coral_intake.getConfigurator().apply(coral_intake_config);
+        algae_intake1_CurrentLimit.withStatorCurrentLimit(10);
+        algae_intake1_outputConfig.Inverted = InvertedValue.Clockwise_Positive;
 
-        carriage_encoder = carriage.getEncoder();
-
-        carriage_encoder.setPosition(carriage_start);
-
-        carriage_PID = new ProfiledPIDController(carriage_KP, 0, carriage_KD, new Constraints(1, 1));
-        carriage_FF = new ElevatorFeedforward(carriage_KS, carriage_KG, carriage_KV);
+        algae_intake2_CurrentLimit.withStatorCurrentLimit(10);
+        algae_intake2_outputConfig.Inverted = InvertedValue.CounterClockwise_Positive;
         
 
-        algae.setPosition(algae_encoder.get() + Units.degreesToRotations(algae_offset));
+        
+        carriage.getConfigurator().apply(carriage_config);
+        
+        algae_intake_1.getConfigurator().apply(algae_intake_1_config);
+        algae_intake_2.getConfigurator().apply(algae_intake_2_config);
+        elevator      .getConfigurator().apply(elevator_config);
+        coral         .getConfigurator().apply(coral_config);
+        coral_intake  .getConfigurator().apply(coral_intake_config);
+
+
+
+        carriage.setPosition(carriage_start);
+
+        //seed coral kraken based on absolute encoder
         coral.setPosition(coral_encoder.get() + Units.degreesToRotations(coral_offset));
     }    
 
@@ -214,12 +226,15 @@ public class Elevator extends SubsystemBase
     {
         throttle = (throttleSupplier.get() + 1) / 2;
 
+        //elevator and carriage from Kraken encoder
         elevator_position = elevator.getPosition(true).getValueAsDouble();
-        carriage_position = carriage_encoder.getPosition() * carriage_ratio;
+        carriage_position = carriage.getPosition(true).getValueAsDouble();
+
+        //coral wrist and algae wrist from through bore
         algae_position = Units.rotationsToDegrees(algae_encoder.get()) + algae_offset;
         coral_position = Units.rotationsToDegrees(coral_encoder.get()) + coral_offset;
 
-        algae_internal_encoder = Units.rotationsToDegrees(algae.getPosition().getValueAsDouble());
+        //coral wrist also from Kraken encoder
         coral_internal_encoder = Units.rotationsToDegrees(coral.getPosition().getValueAsDouble());
 
         
@@ -227,6 +242,7 @@ public class Elevator extends SubsystemBase
         SmartDashboard.putNumber("carriage", carriage_position);
         SmartDashboard.putNumber("algae wrist", algae_position);
         SmartDashboard.putNumber("coral wrist", coral_position);
+        SmartDashboard.putNumber("coral wrist Kraken", coral_internal_encoder);
         SmartDashboard.putNumber("throttle", throttle);
 
 
@@ -235,7 +251,7 @@ public class Elevator extends SubsystemBase
         {
             case START_1:
                 elevator_setpoint = 0;
-                carriage_setpoint = carriage_encoder.getPosition();
+                carriage_setpoint = carriage_position;
                 algae_setpoint = algae_position;
                 coral_setpoint = coral_SP_SAFE;
                 unstow();
@@ -355,24 +371,29 @@ public class Elevator extends SubsystemBase
         }
     }
 
+    double algae_PID_out;
+    double algae_FF_out;
     void algaeControl(double SP)
     {
+        algae_PID_out = algae_PID.calculate(algae_position, SP);
+        algae_FF_out = algae_FF.calculate(algae_PID.getSetpoint().position, algae_PID.getSetpoint().velocity);
 
+        //algae.setVoltage(algae_PID_out + algae_FF_out);
     }
 
     void coralControl(double SP)
     {
-
+        //coral.setControl(coral_motion_request);
     }
 
     void elevatorControl(double SP)
     {
-
+        //elevator.setControl(elevator_motion_request);
     }
 
     void carriageControl(double SP)
     {
-
+        //carriage.setControl(carriage_motion_request);
     }
 
 }

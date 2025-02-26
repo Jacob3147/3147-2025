@@ -23,6 +23,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public final class Constants 
 {
+    public static final double kraken_free_speed = Units.rotationsPerMinuteToRadiansPerSecond(5800);
+    public static final double neo_free_speed = Units.rotationsPerMinuteToRadiansPerSecond(5676);
+
     //Most drive related constants are in TunerConstants.java, which is part of the CTRE swerve generator
     public static final class GlobalConstants
     {
@@ -64,28 +67,32 @@ public final class Constants
 
         public static final double elevator_ratio = 1;
         public static final double carriage_ratio = 1;
+        public static final double algae_ratio = 4;
+        public static final double coral_ratio = 4;
+        public static final double elevator_sprocket_diameter = Units.inchesToMeters(3);
+        public static final double carriage_sprocket_diameter = Units.inchesToMeters(1);
 
         public static final double elevator_KG = 0;
         public static final double elevator_KS = 0;
-        public static final double elevator_KV = 0;
+        public static final double elevator_KV = 12 / (kraken_free_speed * elevator_sprocket_diameter / elevator_ratio);
         public static final double elevator_KP = 0;
         public static final double elevator_KD = 0;
 
         public static final double carriage_KG = 0;
         public static final double carriage_KS = 0;
-        public static final double carriage_KV = 0;
+        public static final double carriage_KV = 12 / (kraken_free_speed * carriage_sprocket_diameter / carriage_ratio);
         public static final double carriage_KP = 0;
         public static final double carriage_KD = 0;
 
         public static final double algae_KG = 0;
         public static final double algae_KS = 0;
-        public static final double algae_KV = 0;
+        public static final double algae_KV = 12 / (neo_free_speed / algae_ratio);
         public static final double algae_KP = 0;
         public static final double algae_KD = 0;
 
         public static final double coral_KG = 0;
         public static final double coral_KS = 0;
-        public static final double coral_KV = 0;
+        public static final double coral_KV = 12 / (kraken_free_speed / coral_ratio);
         public static final double coral_KP = 0;
         public static final double coral_KD = 0;
 
