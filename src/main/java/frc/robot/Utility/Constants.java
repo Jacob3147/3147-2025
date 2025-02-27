@@ -65,11 +65,11 @@ public final class Constants
        
         public static final double carriage_start = 0;
 
-        public static final double elevator_ratio = 1;
+        public static final double elevator_ratio = 12;
         public static final double carriage_ratio = 1;
-        public static final double algae_ratio = 4;
+        public static final double algae_ratio = 36;
         public static final double coral_ratio = 4;
-        public static final double elevator_sprocket_diameter = Units.inchesToMeters(3);
+        public static final double elevator_sprocket_diameter = Units.inchesToMeters(1.625);
         public static final double carriage_sprocket_diameter = Units.inchesToMeters(1);
 
         public static final double elevator_KG = 0;

@@ -58,6 +58,7 @@ public class Elevator extends SubsystemBase
     }
 
     public ElevatorState state = ElevatorState.START_1;
+    public ElevatorState queued = ElevatorState.NEUTRAL;
 
 
     TalonFX elevator;
@@ -354,6 +355,81 @@ public class Elevator extends SubsystemBase
         }
        
     }
+
+    public void start_coral_intake()
+    {
+        coral.set(0.5);
+    }
+    public void stop_coral_intake()
+    {
+        coral.set(0);
+    }
+    public void reverse_coral_intake()
+    {
+        coral.set(-0.5);
+    }
+    public void start_algae_intake()
+    {
+        algae.set(0.5);
+    }
+    public void stop_algae_intake()
+    {
+        algae.set(0);
+    }
+    public void reverse_algae_intake()
+    {
+        algae.set(-0.5);
+    }
+    public void execQueued()
+    {
+        state = queued;
+    }
+
+    public void score()
+    {
+        switch(state){
+
+
+            case L1_CORAL:
+                break;
+
+            case L2_CORAL:
+                break;
+
+            case L3_CORAL:
+                break;
+
+            case L4_CORAL:
+                break;
+
+            case NET:
+                break;
+
+            case NEUTRAL:
+                break;
+
+            case PROCESSOR:
+                break;
+
+
+            case LOADING:
+            case LOW_REEF_ALGAE:
+            case GROUND_ALGAE:                
+            case HIGH_REEF_ALGAE:
+                //these states don't have a score
+                break;
+
+            case START_1:
+            case START_2:
+            case START_3:
+                unstow();
+                break;
+            default:
+                break;
+        }
+    }
+
+    
 
     void unstow()
     {
