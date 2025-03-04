@@ -14,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.ModuleRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -51,7 +52,7 @@ public class RobotContainer
             .withDeadband(TunerConstants.kMaxSpeed* 0.1)
             .withRotationalDeadband(TunerConstants.kMaxAngularRate * 0.2) // Add deadband
             .withDriveRequestType(DriveRequestType.Velocity)
-            .withSteerRequestType(SteerRequestType.MotionMagicExpo)
+            .withSteerRequestType(SteerRequestType.Position)
             .withDesaturateWheelSpeeds(true);
 
     private final Elevator elevator = new Elevator(() -> joystick.getThrottle());
@@ -61,6 +62,11 @@ public class RobotContainer
 
     public RobotContainer() {
 
+        NamedCommands.registerCommand("Go to L1", Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
+        NamedCommands.registerCommand("Go to L2", Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
+        NamedCommands.registerCommand("Go to L3", Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
+        NamedCommands.registerCommand("Score Coral", Commands.runOnce(() -> elevator.reverse_coral_intake()));
+        NamedCommands.registerCommand("Neutral", Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
         
         configureBindings();
         while(!AutoBuilder.isConfigured())
@@ -69,6 +75,8 @@ public class RobotContainer
         }
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("autoChooser", autoChooser);
+
+       
     }
 
     private void configureBindings() {
@@ -94,68 +102,84 @@ public class RobotContainer
         buttonBox.getHID().setOutputs(0xFFFF);
 
         //Button box decides which state will be next
-        buttonBox.button(0).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L4_CORAL));
-        buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L3_CORAL));
-        buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L2_CORAL));
-        buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L1_CORAL));
-        buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.NET));
-        buttonBox.button(5).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.LOADING));
-        buttonBox.button(6).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.PROCESSOR));
-        buttonBox.button(7).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.GROUND_ALGAE));
-        buttonBox.button(8).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.HIGH_REEF_ALGAE));
-        buttonBox.button(9).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.LOW_REEF_ALGAE));
-
+        buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L4_CORAL));
+        buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L3_CORAL));
+        buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L2_CORAL));
+        buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L1_CORAL));
+        buttonBox.button(5).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.NET));
+        buttonBox.button(6).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.LOADING));
+        buttonBox.button(7).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.PROCESSOR));
+        buttonBox.button(8).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.GROUND_ALGAE));
+        buttonBox.button(9).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.HIGH_REEF_ALGAE));
+        buttonBox.button(10).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.LOW_REEF_ALGAE));
+        
         //Joystick thumb button goes to the state
-        joystick.button(1).onTrue(Commands.runOnce(() -> elevator.execQueued()));
+        joystick.button(2)
+                .and(() -> elevator.state == ElevatorState.NEUTRAL).onTrue(
+                    Commands.runOnce(() -> elevator.execQueued()));
+        
+        joystick.button(11).or(joystick.button(12)).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
 
         //If the state is an intake, spin the correct intake while held, then stop when released and go to neutral
-        joystick.button(1).whileTrue(
-            new SelectCommand<>(
-                Map.ofEntries (
-                    Map.entry(ElevatorState.LOADING,         Commands.runOnce(() -> elevator.start_coral_intake())),
-                    Map.entry(ElevatorState.GROUND_ALGAE,    Commands.runOnce(() -> elevator.start_algae_intake())),
-                    Map.entry(ElevatorState.LOW_REEF_ALGAE,  Commands.runOnce(() -> elevator.start_algae_intake())),
-                    Map.entry(ElevatorState.HIGH_REEF_ALGAE, Commands.runOnce(() -> elevator.start_algae_intake()))
-                ),
-                () -> elevator.state
-            )
-            .andThen(Commands.runOnce(() -> elevator.stop_coral_intake()))
-            .andThen(Commands.runOnce(() -> elevator.stop_algae_intake()))
-            .andThen(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL))
-            .andThen(Commands.runOnce(() -> elevator.queued = ElevatorState.NEUTRAL))
-        );
+        joystick.button(2)
+                .and(() -> elevator.state == ElevatorState.LOADING).whileTrue(
+                    Commands.startEnd(
+                        () -> elevator.start_coral_intake(),
+                        () -> elevator.state = ElevatorState.NEUTRAL));
+
+        joystick.button(2)
+                    .and(() -> elevator.state == ElevatorState.GROUND_ALGAE).whileTrue(
+                        Commands.startEnd(
+                        () -> elevator.start_algae_intake(),
+                        () -> elevator.state = ElevatorState.NEUTRAL));
+
+        joystick.button(2)
+                .and(() -> elevator.state == ElevatorState.HIGH_REEF_ALGAE).whileTrue(
+                    Commands.startEnd(
+                        () -> elevator.start_algae_intake(),
+                        () -> elevator.state = ElevatorState.NEUTRAL));
+
+        joystick.button(2)
+                .and(() -> elevator.state == ElevatorState.LOW_REEF_ALGAE).whileTrue(
+                    Commands.startEnd(
+                        () -> elevator.start_algae_intake(),
+                        () -> elevator.state = ElevatorState.NEUTRAL));
 
 
-        //Joystick trigger releases according to current state
-        joystick.trigger().onTrue(
-            new SelectCommand<>(
-                Map.ofEntries (
-                    Map.entry(ElevatorState.L1_CORAL,  Commands.runOnce(() -> elevator.reverse_coral_intake())),
-                    Map.entry(ElevatorState.L2_CORAL,  Commands.runOnce(() -> elevator.reverse_coral_intake())),
-                    Map.entry(ElevatorState.L3_CORAL,  Commands.runOnce(() -> elevator.reverse_coral_intake())),
-                    Map.entry(ElevatorState.L4_CORAL,  Commands.runOnce(() -> elevator.reverse_coral_intake())),
-                    Map.entry(ElevatorState.PROCESSOR, Commands.runOnce(() -> elevator.reverse_algae_intake())),
-                    Map.entry(ElevatorState.NET,       Commands.runOnce(() -> elevator.reverse_algae_intake()))
-                ),
-                () -> elevator.state
-            )
-            .andThen(Commands.waitSeconds(1))
-            .andThen(Commands.runOnce(() -> elevator.stop_coral_intake()))
-            .andThen(Commands.runOnce(() -> elevator.stop_algae_intake()))
-            .andThen(Commands.runOnce(() -> elevator.queued = ElevatorState.NEUTRAL))
-        );
+        joystick.trigger()
+                .and(() -> elevator.state == ElevatorState.L1_CORAL).onTrue(
+                    Commands.runOnce(() -> elevator.soft_coral_eject())
+                );
+
+        joystick.trigger()
+                .and(() -> elevator.state == ElevatorState.L2_CORAL).onTrue(
+                    Commands.runOnce(() -> elevator.reverse_coral_intake())
+                );
+
+        joystick.trigger()
+                .and(() -> elevator.state == ElevatorState.L3_CORAL).onTrue(
+                    Commands.runOnce(() -> elevator.reverse_coral_intake())
+                );
 
 
-        // reset the field-centric heading
-        /*joystick.trigger().onTrue(
-            drivetrain.runOnce(() -> drivetrain.seedFieldCentric())
-            .andThen(drivetrain.runOnce(() -> drivetrain.resetPose(new Pose2d(3.16, 4, new Rotation2d(0.0)))))
-            );*/
+        joystick.trigger()
+                .and(() -> elevator.state == ElevatorState.PROCESSOR).onTrue(
+                    Commands.runOnce(() -> elevator.reverse_coral_intake())
+                );
+
+        joystick.button(7).or(joystick.button(8)).onTrue(
+            drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    public void elevator_neutral()
+    {
+        elevator.state = ElevatorState.NEUTRAL;
     }
 }

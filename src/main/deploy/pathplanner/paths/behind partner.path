@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.8,
-        "y": 4.015
+        "x": 5.75,
+        "y": 4.013
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.8,
-        "y": 4.015
+        "x": 6.75,
+        "y": 4.013
       },
       "isLocked": false,
       "linkedName": "reef back center"

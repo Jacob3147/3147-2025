@@ -60,82 +60,82 @@ public final class Constants
         public static final int algae_encoder_port = 0;
         public static final int coral_encoder_port = 1;
 
-        public static final double algae_offset = 0;
-        public static final double coral_offset = 0;
+        public static final double algae_offset = 35;
+        public static final double coral_offset = 139;
        
-        public static final double carriage_start = 0;
+        public static final double carriage_start = 2.7;
 
         public static final double elevator_ratio = 12;
-        public static final double carriage_ratio = 1;
+        public static final double carriage_ratio = 20;
         public static final double algae_ratio = 36;
-        public static final double coral_ratio = 4;
+        public static final double coral_ratio = 36;
         public static final double elevator_sprocket_diameter = Units.inchesToMeters(1.625);
-        public static final double carriage_sprocket_diameter = Units.inchesToMeters(1);
+        public static final double carriage_sprocket_diameter = Units.inchesToMeters(1.625);
 
-        public static final double elevator_KG = 0;
+        public static final double elevator_KG = 0.4;
         public static final double elevator_KS = 0;
-        public static final double elevator_KV = 12 / (kraken_free_speed * elevator_sprocket_diameter / elevator_ratio);
-        public static final double elevator_KP = 0;
-        public static final double elevator_KD = 0;
+        public static final double elevator_KV = 8 / (kraken_free_speed * elevator_sprocket_diameter / elevator_ratio);
+        public static final double elevator_KP = 2;
+        public static final double elevator_KD = 0.2;
 
-        public static final double carriage_KG = 0;
+        public static final double carriage_KG = 0; //none needed
         public static final double carriage_KS = 0;
-        public static final double carriage_KV = 12 / (kraken_free_speed * carriage_sprocket_diameter / carriage_ratio);
-        public static final double carriage_KP = 0;
-        public static final double carriage_KD = 0;
+        public static final double carriage_KV = 4 / (kraken_free_speed * carriage_sprocket_diameter / carriage_ratio);
+        public static final double carriage_KP = 0.1;
+        public static final double carriage_KD = 0.1;
 
         public static final double algae_KG = 0;
-        public static final double algae_KS = 0;
+        public static final double algae_KS = 0.2;
         public static final double algae_KV = 12 / (neo_free_speed / algae_ratio);
-        public static final double algae_KP = 0;
+        public static final double algae_KP = 3;
         public static final double algae_KD = 0;
 
-        public static final double coral_KG = 0;
-        public static final double coral_KS = 0;
+        public static final double coral_KG = 0.2;
+        public static final double coral_KS = 0; 
         public static final double coral_KV = 12 / (kraken_free_speed / coral_ratio);
-        public static final double coral_KP = 0;
+        public static final double coral_KP = 2;
         public static final double coral_KD = 0;
 
 
         public static final double elevator_SP_NEUTRAL = 0;
         public static final double elevator_SP_LOAD = 0;
         public static final double elevator_SP_LEVEL1 = 0;
-        public static final double elevator_SP_LEVEL2 = 0;
-        public static final double elevator_SP_LEVEL3 = 0;
+        public static final double elevator_SP_LEVEL2 = 1.1;
+        public static final double elevator_SP_LEVEL3 = 4.45;
         public static final double elevator_SP_LEVEL4 = 0;
-        public static final double elevator_SP_ALGAE_HIGH = 0;
-        public static final double elevator_SP_ALGAE_LOW = 0;
+        public static final double elevator_SP_ALGAE_HIGH = 4;
+        public static final double elevator_SP_ALGAE_LOW = 4;
         public static final double elevator_SP_ALGAE_GROUND = 0;
         public static final double elevator_SP_NET = 0;
         public static final double elevator_SP_PROCESSOR = 0;
 
-        public static final double carriage_SP_NEUTRAL = 0;
-        public static final double carriage_SP_LOAD = 0;
-        public static final double carriage_SP_LEVEL1 = 0;
-        public static final double carriage_SP_LEVEL2 = 0;
-        public static final double carriage_SP_LEVEL3 = 0;
-        public static final double carriage_SP_LEVEL4 = 0;
-        public static final double carriage_SP_ALGAE_HIGH = 0;
-        public static final double carriage_SP_ALGAE_LOW = 0;
-        public static final double carriage_SP_ALGAE_GROUND = 0;
-        public static final double carriage_SP_NET = 0;
-        public static final double carriage_SP_PROCESSOR = 0;
+        public static final double carriage_SP_NEUTRAL = carriage_start + 0.4;
+        public static final double carriage_SP_LOAD = carriage_start + 0.4;
+        public static final double carriage_SP_LEVEL1 = carriage_start + 0.4;
+        public static final double carriage_SP_LEVEL2 = carriage_start + 0.4;
+        public static final double carriage_SP_LEVEL3 = carriage_start + 0.4;
+        public static final double carriage_SP_LEVEL4 = carriage_start + 0.4;
+        public static final double carriage_SP_ALGAE_HIGH = carriage_start + 0.4;
+        public static final double carriage_SP_ALGAE_LOW = carriage_start + 0.4;
+        public static final double carriage_SP_ALGAE_GROUND = carriage_start + 0.4;
+        public static final double carriage_SP_NET = carriage_start + 0.4;
+        public static final double carriage_SP_PROCESSOR = carriage_start + 0.4;
 
-        public static final double algae_SP_NEUTRAL = 0;
-        public static final double algae_SP_STOW = 60;
-        public static final double algae_SP_ALGAE_HIGH = 0;
-        public static final double algae_SP_ALGAE_LOW = 0;
-        public static final double algae_SP_ALGAE_GROUND = 0;
-        public static final double algae_SP_NET = 0;
-        public static final double algae_SP_PROCESSOR = 0;
+        public static final double algae_SP_NEUTRAL = Units.degreesToRadians(90);
+        public static final double algae_SP_STOW = Units.degreesToRadians(-70);
+        public static final double algae_SP_ALGAE_HIGH = Units.degreesToRadians(0);
+        public static final double algae_SP_ALGAE_LOW = Units.degreesToRadians(0);
+        public static final double algae_SP_ALGAE_GROUND = Units.degreesToRadians(0);
+        public static final double algae_SP_NET = Units.degreesToRadians(0);
+        public static final double algae_SP_PROCESSOR = Units.degreesToRadians(0);
 
-        public static final double coral_SP_NEUTRAL = 0;
-        public static final double coral_SP_LOAD = 0;
-        public static final double coral_SP_LEVEL1 = 0;
-        public static final double coral_SP_LEVEL2 = 0;
-        public static final double coral_SP_LEVEL3 = 0;
-        public static final double coral_SP_LEVEL4 = 0;
-        public static final double coral_SP_SAFE = 90;
+        public static final double coral_SP_NEUTRAL = Units.degreesToRadians(0);
+        public static final double coral_SP_LOAD =  Units.degreesToRadians(19);
+        public static final double coral_SP_LEVEL1 =  Units.degreesToRadians(-27);
+        public static final double coral_SP_LEVEL2 =  Units.degreesToRadians(-27);
+        public static final double coral_SP_LEVEL3 =  Units.degreesToRadians(-26);
+        public static final double coral_SP_LEVEL4 =  Units.degreesToRadians(0);
+        public static final double coral_SP_SAFE =  Units.degreesToRadians(90);
     }
 
     public static final class LocalizationConstants

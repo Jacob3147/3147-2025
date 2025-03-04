@@ -5,15 +5,64 @@
     "data": {
       "commands": [
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Go to L1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "1 pc their side"
           }
         },
         {
-          "type": "path",
+          "type": "wait",
           "data": {
-            "pathName": "EF to load"
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score Coral"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "EF to load"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Neutral"
+                }
+              }
+            ]
           }
         }
       ]

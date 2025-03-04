@@ -179,7 +179,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
-        LimelightPose.evaluate(getState().Pose, getState().Speeds, applyVisionMeasurement);
+        //LimelightPose.evaluate(getState().Pose, getState().Speeds, applyVisionMeasurement);
 
         field.setRobotPose(getState().Pose);
         

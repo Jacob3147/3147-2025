@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5298519736842104,
-        "y": 7.24827302631579
+        "x": 1.7621926229508196,
+        "y": 7.021926229508197
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.110934421584638,
-        "y": 6.396459811751663
+        "x": 2.3432750708512473,
+        "y": 6.170113014944071
       },
       "isLocked": false,
       "linkedName": "load_left"
@@ -48,7 +48,7 @@
   "folder": "JKL",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 126.0
+    "rotation": 126.20945681718605
   },
   "useDefaultConstraints": true
 }
