@@ -45,6 +45,7 @@ public class RobotContainer
     //private final CommandXboxController joystick = new CommandXboxController(0);
     private final CommandJoystick joystick = new CommandJoystick(0);
     private final CommandGenericHID buttonBox = new CommandGenericHID(1);
+    private final CommandGenericHID buttonBox2 = new CommandGenericHID(2);
 
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     
@@ -58,6 +59,8 @@ public class RobotContainer
     private final Elevator elevator = new Elevator(() -> joystick.getThrottle());
 
     private final SendableChooser<Command> autoChooser;
+
+    
 
 
     public RobotContainer() {
@@ -96,10 +99,11 @@ public class RobotContainer
                                     * Math.pow((-1*joystick.getTwist()),2) 
                                     * TunerConstants.kMaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
-        
+
 
         
-        buttonBox.getHID().setOutputs(0xFFFF);
+        
+
 
         //Button box decides which state will be next
         buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L4_CORAL));

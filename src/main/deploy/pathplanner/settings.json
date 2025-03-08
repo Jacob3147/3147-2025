@@ -3,11 +3,11 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
-    "JKL",
-    "1 pc or push"
+    "1 pc",
+    "JKL"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 3.0,
+  "defaultMaxVel": 4.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
@@ -20,7 +20,7 @@
   "maxDriveSpeed": 4.73,
   "driveMotorType": "krakenX60FOC",
   "driveCurrentLimit": 60.0,
-  "wheelCOF": 1.2,
+  "wheelCOF": 1.4,
   "flModuleX": 0.273,
   "flModuleY": 0.273,
   "frModuleX": 0.273,
