@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.*;
 
 import java.util.Map;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.ModuleRequest;
@@ -29,6 +30,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Utility.TunerConstants;
+import frc.robot.Utility.Constants.DriveConstants;
+import frc.robot.Utility.Constants.LocalizationConstants;
+import frc.robot.commands.DriveToPose;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
@@ -38,7 +42,7 @@ import static frc.robot.Utility.Constants.GlobalConstants.*;
 public class RobotContainer 
 {
 
-
+    
 
     private final Telemetry logger = new Telemetry(TunerConstants.kMaxSpeed);
 
@@ -56,20 +60,21 @@ public class RobotContainer
             .withSteerRequestType(SteerRequestType.Position)
             .withDesaturateWheelSpeeds(true);
 
-    private final Elevator elevator = new Elevator(() -> joystick.getThrottle());
+    //private final Elevator elevator = new Elevator(() -> joystick.getThrottle());
 
     private final SendableChooser<Command> autoChooser;
+    Supplier<Pose2d> target_pose = () -> LocalizationConstants.reef_1L;
 
-    
+    private final DriveToPose drivePoseCommand = new DriveToPose(drivetrain, target_pose, joystick);
 
 
     public RobotContainer() {
 
-        NamedCommands.registerCommand("Go to L1", Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
-        NamedCommands.registerCommand("Go to L2", Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
-        NamedCommands.registerCommand("Go to L3", Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
-        NamedCommands.registerCommand("Score Coral", Commands.runOnce(() -> elevator.reverse_coral_intake()));
-        NamedCommands.registerCommand("Neutral", Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
+        //NamedCommands.registerCommand("Go to L1", Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
+        //NamedCommands.registerCommand("Go to L2", Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
+        //NamedCommands.registerCommand("Go to L3", Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
+        //NamedCommands.registerCommand("Score Coral", Commands.runOnce(() -> elevator.reverse_coral_intake()));
+        //NamedCommands.registerCommand("Neutral", Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
         
         configureBindings();
         while(!AutoBuilder.isConfigured())
@@ -100,11 +105,12 @@ public class RobotContainer
                                     * TunerConstants.kMaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
 
-
         
+        joystick.button(9).onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_1L));
         
+        joystick.button(2).whileTrue(drivePoseCommand);
 
-
+        /*
         //Button box decides which state will be next
         buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L4_CORAL));
         buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L3_CORAL));
@@ -170,9 +176,11 @@ public class RobotContainer
                 .and(() -> elevator.state == ElevatorState.PROCESSOR).onTrue(
                     Commands.runOnce(() -> elevator.reverse_coral_intake())
                 );
+        */
 
         joystick.button(7).or(joystick.button(8)).onTrue(
-            drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+            drivetrain.runOnce(() -> drivetrain.seedFieldCentric())
+            .andThen(Commands.runOnce(() -> drivetrain.resetPose(new Pose2d(3.141, 4.031, new Rotation2d(0))))));
 
 
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -182,8 +190,8 @@ public class RobotContainer
         return autoChooser.getSelected();
     }
 
-    public void elevator_neutral()
+    /*public void elevator_neutral()
     {
         elevator.state = ElevatorState.NEUTRAL;
-    }
+    }*/
 }

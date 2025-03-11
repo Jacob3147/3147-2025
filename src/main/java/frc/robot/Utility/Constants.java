@@ -41,11 +41,13 @@ public final class Constants
     {
         //most of these constants are in TunerConstants, but some is used here
 
-        public static final double PathKP = 2;
+        public static final double PathKP = 5;
         public static final double PathKI = 0;
         public static final double PathKD = 0;
-        public static final double PathKP_Theta = 1;
-        public static final Constraints AlignConstraints = new Constraints(2, 2);
+        public static final double PathKP_Theta = 5;
+        public static final Constraints AlignConstraints = new Constraints(2, 4);
+        public static final Constraints AlignConstraints_rot = new Constraints(6, 10);
+
     }
 
     public static final class ElevatorConstants

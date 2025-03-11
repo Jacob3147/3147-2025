@@ -67,12 +67,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
-    ProfiledPIDController alignmentPID_X;
-    ProfiledPIDController alignmentPID_Y;
-    ProfiledPIDController alignmentPID_Theta;
-    ChassisSpeeds alignmentSpeeds;
 
-    private Field2d field;
+
+    public Field2d field;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -92,11 +89,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         configureAutoBuilder();
         field = new Field2d();
 
-        alignmentPID_X = new ProfiledPIDController(DriveConstants.PathKP, DriveConstants.PathKI, DriveConstants.PathKD, DriveConstants.AlignConstraints);
-        alignmentPID_Y = new ProfiledPIDController(DriveConstants.PathKP, DriveConstants.PathKI, DriveConstants.PathKD, DriveConstants.AlignConstraints);
-        alignmentPID_Theta = new ProfiledPIDController(DriveConstants.PathKP_Theta, 0, 0, DriveConstants.AlignConstraints);
-        alignmentPID_Theta.enableContinuousInput(0,2*Math.PI);
-        alignmentSpeeds = new ChassisSpeeds();
+
 
         SmartDashboard.putData("Field", field);
     }
@@ -143,16 +136,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     
 
-    public Command driveToPose(Pose2d pose)
-    {
-        
-        alignmentSpeeds.vxMetersPerSecond = alignmentPID_X.calculate(getState().Pose.getX(), pose.getX());
-        alignmentSpeeds.vyMetersPerSecond = alignmentPID_Y.calculate(getState().Pose.getY(), pose.getY());
-        alignmentSpeeds.omegaRadiansPerSecond = alignmentPID_Theta.calculate(getState().Pose.getRotation().getRadians(), pose.getRotation().getRadians());
 
-        return run(() -> Commands.none());
-
-    }
  
 
     @Override
