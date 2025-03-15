@@ -59,11 +59,12 @@ public class Elevator extends SubsystemBase
     TalonFX tomahawk;
     TalonFXConfiguration tomahawk_config;
     MotionMagicExpoVoltage tomahawk_motion_request = new MotionMagicExpoVoltage(0);
-    double tomahawk_kraken_position;
+    double tomahawk_position;
     double tomahawk_setpoint;
     DutyCycleEncoder tomahawk_encoder;
 
-    double tomahawk_position;
+    double tomahawk_encoder_position;
+    double tomahawk_kraken_position;
     double tomahawk_position_temp;
     double tomahawk_offset = 0;
 
@@ -72,6 +73,17 @@ public class Elevator extends SubsystemBase
     TalonFXSConfiguration coral_intake_config;
     VoltageOut coral_volt = new VoltageOut(0);
     
+
+    TalonFX pivot;
+    TalonFXConfiguration pivot_config;
+    double pivot_position;
+    double pivot_setpoint;
+    DutyCycleEncoder pivot_encoder;
+
+    double pivot_kraken_position;
+    double pivot_encoder_position;
+    double pivot_position_temp;
+    double pivot_offset = 0;
 
 
     Supplier<Double> throttleSupplier;
@@ -84,11 +96,13 @@ public class Elevator extends SubsystemBase
 
         this.throttleSupplier = throttleSupplier;
         tomahawk_encoder = new DutyCycleEncoder(1);
+        pivot_encoder = new DutyCycleEncoder(2);
 
 
         tomahawk       = new TalonFX(tomahawk_ID,        "rio");
         elevator       = new TalonFX (elevator_ID,       "rio");
         coral_intake   = new TalonFXS(coral_intake_ID,   "rio");
+        pivot          = new TalonFX(pivot_ID,           "rio");
 
 
         tomahawk_config       = new TalonFXConfiguration();
@@ -111,6 +125,13 @@ public class Elevator extends SubsystemBase
         CurrentLimitsConfigs coral_intake_CurrentLimit = coral_intake_config.CurrentLimits;
         MotorOutputConfigs coral_intake_outputConfig = coral_intake_config.MotorOutput;
         coral_intake_config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+
+        pivot_config = new TalonFXConfiguration();
+        Slot0Configs pivotSlot0 = pivot_config.Slot0;
+        CurrentLimitsConfigs pivotCurrentLimit = pivot_config.CurrentLimits;
+        MotionMagicConfigs pivotMotionMagicConfigs =  pivot_config.MotionMagic;
+        FeedbackConfigs pivotFeedback = pivot_config.Feedback;
+        MotorOutputConfigs pivotOutputConfig = pivot_config.MotorOutput;
 
 
         
@@ -140,11 +161,21 @@ public class Elevator extends SubsystemBase
         coral_intake_outputConfig.Inverted = InvertedValue.Clockwise_Positive;
 
         
+        pivotSlot0.withGravityType(GravityTypeValue.pivot_Static)
+                     .withKV(pivot_KV).withKS(pivot_KS).withKG(pivot_KG)
+                     .withKP(pivot_KP).withKD(pivot_KD);
+        pivotCurrentLimit.withStatorCurrentLimit(40);
+        pivotMotionMagicConfigs.withMotionMagicAcceleration(1)
+                          .withMotionMagicCruiseVelocity(1);
+        pivotFeedback.SensorToMechanismRatio = pivot_ratio;
+        pivotOutputConfig.NeutralMode = NeutralModeValue.Brake;
+        pivotOutputConfig.Inverted = InvertedValue.CounterClockwise_Positive;
 
         
         tomahawk    .getConfigurator().apply(tomahawk_config);
         elevator    .getConfigurator().apply(elevator_config);
         coral_intake.getConfigurator().apply(coral_intake_config);
+        pivot       .getConfigurator().apply(pivot_config);
 
     }    
 
@@ -168,15 +199,21 @@ public class Elevator extends SubsystemBase
         //Kraken encoder
         elevator_position = elevator.getPosition(true).getValueAsDouble();
         tomahawk_kraken_position = tomahawk.getPosition(true).getValueAsDouble();
+        pivot_kraken_position = pivot.getPosition(true).getValueAsDouble();
 
         //thru bore
-        tomahawk_position_temp = (-1 * Units.rotationsToRadians(tomahawk_encoder.get()) + Units.degreesToRadians(tomahawk_offset));
-        if(Units.radiansToDegrees(tomahawk_position_temp) < -100) tomahawk_position = tomahawk_position_temp + 2*Math.PI;
-        else tomahawk_position = tomahawk_position_temp;
+        tomahawk_position_temp = (/*-1 * */Units.rotationsToRadians(tomahawk_encoder.get()) + Units.degreesToRadians(tomahawk_offset));
+        //if(Units.radiansToDegrees(tomahawk_position_temp) < -100) tomahawk_position = tomahawk_position_temp + 2*Math.PI;
+        //else tomahawk_position = tomahawk_position_temp;
+
+        pivot_position_temp = (/*-1 * */Units.rotationsToRadians(pivot_encoder.get()) + Units.degreesToRadians(pivot_offset));
         
         
         SmartDashboard.putNumber("elevator", elevator_position);
-        SmartDashboard.putNumber("tomahawk", tomahawk_kraken_position);
+        SmartDashboard.putNumber("tomahawk kraken", tomahawk_kraken_position);
+        SmartDashboard.putNumber("tomahawk encoder", tomahawk_position);
+        SmartDashboard.putNumber("pivot kraken", pivot_kraken_position);
+        SmartDashboard.putNumber("pivot encoder", pivot_position);
         SmartDashboard.putNumber("throttle", throttle);
 
         SmartDashboard.putString("state", state.toString());
