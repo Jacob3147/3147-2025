@@ -60,7 +60,7 @@ public class RobotContainer
             .withSteerRequestType(SteerRequestType.Position)
             .withDesaturateWheelSpeeds(true);
 
-    //private final Elevator elevator = new Elevator(() -> joystick.getThrottle());
+    private final Elevator elevator = new Elevator(() -> joystick.getThrottle());
 
     private final SendableChooser<Command> autoChooser;
     Supplier<Pose2d> target_pose = () -> LocalizationConstants.reef_1L;
@@ -110,73 +110,19 @@ public class RobotContainer
         
         joystick.button(2).whileTrue(drivePoseCommand);
 
-        /*
+        
         //Button box decides which state will be next
-        buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L4_CORAL));
-        buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L3_CORAL));
-        buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L2_CORAL));
-        buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L1_CORAL));
-        buttonBox.button(5).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.NET));
-        buttonBox.button(6).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.LOADING));
-        buttonBox.button(7).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.PROCESSOR));
-        buttonBox.button(8).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.GROUND_ALGAE));
-        buttonBox.button(9).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.HIGH_REEF_ALGAE));
-        buttonBox.button(10).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.LOW_REEF_ALGAE));
+        buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L4_CORAL));
+        buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
+        buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
+        buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
+        //buttonBox.button(5) NET
+        buttonBox.button(6).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.LOADING));
+        //buttonBox.button(7) PROCESSOR
+        //buttonBox.button(8) GROUND ALGAE
+        //buttonBox.button(9) HIGH REEF ALGAE
+        //buttonBox.button(10) LOW REEF ALGAE
         
-        //Joystick thumb button goes to the state
-        joystick.button(2)
-                .and(() -> elevator.state == ElevatorState.NEUTRAL).onTrue(
-                    Commands.runOnce(() -> elevator.execQueued()));
-        
-        joystick.button(11).or(joystick.button(12)).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
-
-        //If the state is an intake, spin the correct intake while held, then stop when released and go to neutral
-        joystick.button(2)
-                .and(() -> elevator.state == ElevatorState.LOADING).whileTrue(
-                    Commands.startEnd(
-                        () -> elevator.start_coral_intake(),
-                        () -> elevator.state = ElevatorState.NEUTRAL));
-
-        joystick.button(2)
-                    .and(() -> elevator.state == ElevatorState.GROUND_ALGAE).whileTrue(
-                        Commands.startEnd(
-                        () -> elevator.start_algae_intake(),
-                        () -> elevator.state = ElevatorState.NEUTRAL));
-
-        joystick.button(2)
-                .and(() -> elevator.state == ElevatorState.HIGH_REEF_ALGAE).whileTrue(
-                    Commands.startEnd(
-                        () -> elevator.start_algae_intake(),
-                        () -> elevator.state = ElevatorState.NEUTRAL));
-
-        joystick.button(2)
-                .and(() -> elevator.state == ElevatorState.LOW_REEF_ALGAE).whileTrue(
-                    Commands.startEnd(
-                        () -> elevator.start_algae_intake(),
-                        () -> elevator.state = ElevatorState.NEUTRAL));
-
-
-        joystick.trigger()
-                .and(() -> elevator.state == ElevatorState.L1_CORAL).onTrue(
-                    Commands.runOnce(() -> elevator.soft_coral_eject())
-                );
-
-        joystick.trigger()
-                .and(() -> elevator.state == ElevatorState.L2_CORAL).onTrue(
-                    Commands.runOnce(() -> elevator.reverse_coral_intake())
-                );
-
-        joystick.trigger()
-                .and(() -> elevator.state == ElevatorState.L3_CORAL).onTrue(
-                    Commands.runOnce(() -> elevator.reverse_coral_intake())
-                );
-
-
-        joystick.trigger()
-                .and(() -> elevator.state == ElevatorState.PROCESSOR).onTrue(
-                    Commands.runOnce(() -> elevator.reverse_coral_intake())
-                );
-        */
 
         joystick.button(7).or(joystick.button(8)).onTrue(
             drivetrain.runOnce(() -> drivetrain.seedFieldCentric())
