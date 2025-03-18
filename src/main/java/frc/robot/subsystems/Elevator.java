@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
@@ -65,8 +66,7 @@ public class Elevator extends SubsystemBase
 
     double tomahawk_encoder_position;
     double tomahawk_kraken_position;
-    double tomahawk_position_temp;
-    double tomahawk_offset = 0;
+    double tomahawk_offset = -4.56;
 
 
     TalonFXS coral_intake;
@@ -95,8 +95,8 @@ public class Elevator extends SubsystemBase
     {
 
         this.throttleSupplier = throttleSupplier;
-        tomahawk_encoder = new DutyCycleEncoder(1);
-        pivot_encoder = new DutyCycleEncoder(2);
+        tomahawk_encoder = new DutyCycleEncoder(0);
+        pivot_encoder = new DutyCycleEncoder(1);
 
 
         tomahawk       = new TalonFX(tomahawk_ID,        "rio");
@@ -107,6 +107,7 @@ public class Elevator extends SubsystemBase
 
         tomahawk_config       = new TalonFXConfiguration();
         Slot0Configs tomahawkSlot0 = tomahawk_config.Slot0;
+        Slot1Configs tomahawkSlot1 = tomahawk_config.Slot1;
         CurrentLimitsConfigs tomahawkCurrentLimit = tomahawk_config.CurrentLimits;
         MotionMagicConfigs tomahawkMotionMagicConfigs =  tomahawk_config.MotionMagic;
         FeedbackConfigs tomahawkFeedback = tomahawk_config.Feedback;
@@ -138,6 +139,10 @@ public class Elevator extends SubsystemBase
         tomahawkSlot0.withGravityType(GravityTypeValue.Arm_Cosine)
                      .withKV(tomahawk_KV).withKS(tomahawk_KS).withKG(tomahawk_KG)
                      .withKP(tomahawk_KP).withKD(tomahawk_KD);
+        tomahawkSlot1.withGravityType(GravityTypeValue.Arm_Cosine)
+                     .withKV(tomahawk_KV_down).withKS(tomahawk_KS).withKG(tomahawk_KG)
+                     .withKP(tomahawk_KP_down).withKD(tomahawk_KD_down);
+
         tomahawkCurrentLimit.withStatorCurrentLimit(40);
         tomahawkMotionMagicConfigs.withMotionMagicAcceleration(1)
                           .withMotionMagicCruiseVelocity(1);
@@ -161,7 +166,7 @@ public class Elevator extends SubsystemBase
         coral_intake_outputConfig.Inverted = InvertedValue.Clockwise_Positive;
 
         
-        pivotSlot0.withGravityType(GravityTypeValue.pivot_Static)
+        pivotSlot0.withGravityType(GravityTypeValue.Elevator_Static)
                      .withKV(pivot_KV).withKS(pivot_KS).withKG(pivot_KG)
                      .withKP(pivot_KP).withKD(pivot_KD);
         pivotCurrentLimit.withStatorCurrentLimit(40);
@@ -177,15 +182,28 @@ public class Elevator extends SubsystemBase
         coral_intake.getConfigurator().apply(coral_intake_config);
         pivot       .getConfigurator().apply(pivot_config);
 
+
+        tomahawk.setPosition(tomahawk_encoder.get() + Units.radiansToRotations(tomahawk_offset));
+
     }    
 
     double throttle_adjust_coral_wrist;
     @Override
     public void periodic() 
     {
+        if(tomahawk.getPosition(true).getValueAsDouble() > tomahawk_setpoint)
+        {
+            tomahawk_motion_request.withSlot(1);
+        }
+        else
+        {
+            tomahawk_motion_request.withSlot(0);
+        }
+
         throttle = throttleSupplier.get();
         voltage.Output = throttle*5;
-        elevator.setControl(voltage);
+        //elevator.setControl(voltage);
+        //tomahawk.setControl(voltage);
         
         //throttle_adjust_coral_wrist = throttle * -1 * Units.degreesToRadians(5);
 
@@ -193,7 +211,7 @@ public class Elevator extends SubsystemBase
 
         coral_intake.setControl(coral_volt);
         //elevatorControl(elevator_setpoint);
-        //tomahawkControl(tomahawk_setpoint);
+        tomahawkControl(tomahawk_setpoint);
 
 
         //Kraken encoder
@@ -202,9 +220,7 @@ public class Elevator extends SubsystemBase
         pivot_kraken_position = pivot.getPosition(true).getValueAsDouble();
 
         //thru bore
-        tomahawk_position_temp = (/*-1 * */Units.rotationsToRadians(tomahawk_encoder.get()) + Units.degreesToRadians(tomahawk_offset));
-        //if(Units.radiansToDegrees(tomahawk_position_temp) < -100) tomahawk_position = tomahawk_position_temp + 2*Math.PI;
-        //else tomahawk_position = tomahawk_position_temp;
+        tomahawk_position = Units.rotationsToRadians(tomahawk_encoder.get()) + tomahawk_offset;
 
         pivot_position_temp = (/*-1 * */Units.rotationsToRadians(pivot_encoder.get()) + Units.degreesToRadians(pivot_offset));
         
@@ -213,7 +229,7 @@ public class Elevator extends SubsystemBase
         SmartDashboard.putNumber("tomahawk kraken", tomahawk_kraken_position);
         SmartDashboard.putNumber("tomahawk encoder", tomahawk_position);
         SmartDashboard.putNumber("pivot kraken", pivot_kraken_position);
-        SmartDashboard.putNumber("pivot encoder", pivot_position);
+        SmartDashboard.putNumber("pivot encoder", pivot_position_temp);
         SmartDashboard.putNumber("throttle", throttle);
 
         SmartDashboard.putString("state", state.toString());
@@ -241,7 +257,7 @@ public class Elevator extends SubsystemBase
 
             case NEUTRAL:
                 elevator_setpoint = 0;
-                tomahawk_setpoint = 0;
+                tomahawk_setpoint = -0.15;
                 break;
 
             case LOADING:
@@ -251,12 +267,12 @@ public class Elevator extends SubsystemBase
 
             case L1_CORAL:
                 elevator_setpoint = 0;
-                tomahawk_setpoint = 0;
+                tomahawk_setpoint = -0.18;
                 break;
 
             case L2_CORAL:
                 elevator_setpoint = 0;
-                tomahawk_setpoint = 0;
+                tomahawk_setpoint = -0.1;
                 break;
 
             case L3_CORAL:
@@ -266,7 +282,7 @@ public class Elevator extends SubsystemBase
 
             case L4_CORAL:
                 elevator_setpoint = 0;
-                tomahawk_setpoint = 0;
+                tomahawk_setpoint = 0.05;
                 break;
 
             default:

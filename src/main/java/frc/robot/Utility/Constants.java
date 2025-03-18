@@ -23,8 +23,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public final class Constants 
 {
-    public static final double kraken_free_speed = Units.rotationsPerMinuteToRadiansPerSecond(5800);
-    public static final double neo_free_speed = Units.rotationsPerMinuteToRadiansPerSecond(5676);
+    public static final double kraken_free_speed = 5800 / 60;
+    public static final double neo_free_speed = 5676 / 60;
 
     //Most drive related constants are in TunerConstants.java, which is part of the CTRE swerve generator
     public static final class GlobalConstants
@@ -54,28 +54,31 @@ public final class Constants
     {
         public static final int elevator_ID = 20;
         public static final int tomahawk_ID = 22;
-        public static final int pivot_ID = 23;
+        public static final int pivot_ID = 26;
         public static final int coral_intake_ID = 27;
 
         public static final double elevator_ratio = 12;
-        public static final double tomahawk_ratio = 12;
+        public static final double tomahawk_ratio = 20;
         public static final double pivot_ratio = 12;
-        public static final double elevator_sprocket_diameter = Units.inchesToMeters(1.625);
-        public static final double tomahawk_sprocket_diameter = Units.inchesToMeters(1.625);
+        public static final double elevator_sprocket_diameter = Units.inchesToMeters(1);
         public static final double pivot_sprocket_diameter = Units.inchesToMeters(0.5);
         
 
-        public static final double elevator_KG = 0;
+        public static final double elevator_KG = 0.35;
         public static final double elevator_KS = 0;
         public static final double elevator_KV = 0 / (kraken_free_speed * elevator_sprocket_diameter / elevator_ratio);
         public static final double elevator_KP = 0;
         public static final double elevator_KD = 0;
 
-        public static final double tomahawk_KG = 0;
-        public static final double tomahawk_KS = 0;
-        public static final double tomahawk_KV = 0 / (kraken_free_speed * tomahawk_sprocket_diameter / tomahawk_ratio);
-        public static final double tomahawk_KP = 0;
-        public static final double tomahawk_KD = 0;
+        public static final double tomahawk_KG = 0.55;
+        public static final double tomahawk_KS = 0.05;
+        public static final double tomahawk_KV = 12/ (kraken_free_speed / tomahawk_ratio);
+        public static final double tomahawk_KP = 20;
+        public static final double tomahawk_KD = 1;
+
+        public static final double tomahawk_KV_down = 6 / (kraken_free_speed / tomahawk_ratio);
+        public static final double tomahawk_KP_down = 3;
+        public static final double tomahawk_KD_down = 0;
 
         public static final double pivot_KG = 0;
         public static final double pivot_KS = 0;
@@ -84,6 +87,7 @@ public final class Constants
         public static final double pivot_KD = 0;
 
 
+        //elevator hard max 5.45
         public static final double elevator_SP_NEUTRAL = 0;
         public static final double elevator_SP_LOAD = 0;
         public static final double elevator_SP_LEVEL1 = 0;
