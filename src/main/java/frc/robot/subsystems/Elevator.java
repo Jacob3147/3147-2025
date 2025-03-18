@@ -15,6 +15,7 @@ import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -82,7 +83,7 @@ public class Elevator extends SubsystemBase
 
     double pivot_kraken_position;
     double pivot_encoder_position;
-    double pivot_offset = 0;
+    double pivot_offset = -.26;
 
 
     Supplier<Double> throttleSupplier;
@@ -92,7 +93,9 @@ public class Elevator extends SubsystemBase
 
     DigitalInput beam_break;
     BooleanSupplier beam_break_supplier;
+
     
+    MotionMagicConfigs elevatorMotionMagicConfigs;
     public Elevator(Supplier<Double> throttleSupplier)
     {
 
@@ -119,10 +122,13 @@ public class Elevator extends SubsystemBase
 
         elevator_config = new TalonFXConfiguration();
         Slot0Configs elevatorSlot0 = elevator_config.Slot0;
+        Slot1Configs elevatorSlot1 = elevator_config.Slot1;
         CurrentLimitsConfigs elevatorCurrentLimit = elevator_config.CurrentLimits;
-        MotionMagicConfigs elevatorMotionMagicConfigs =  elevator_config.MotionMagic;
+        elevatorMotionMagicConfigs =  elevator_config.MotionMagic;
         FeedbackConfigs elevatorFeedback = elevator_config.Feedback;
         MotorOutputConfigs elevatorOutputConfig = elevator_config.MotorOutput;
+
+        
 
 
         coral_intake_config  = new TalonFXSConfiguration();
@@ -157,9 +163,10 @@ public class Elevator extends SubsystemBase
         elevatorSlot0.withGravityType(GravityTypeValue.Elevator_Static)
                      .withKV(elevator_KV).withKS(elevator_KS).withKG(elevator_KG)
                      .withKP(elevator_KP).withKD(elevator_KD);
-        elevatorCurrentLimit.withStatorCurrentLimit(40);
-        elevatorMotionMagicConfigs.withMotionMagicAcceleration(4)
-                          .withMotionMagicCruiseVelocity(4);
+        elevatorCurrentLimit.withStatorCurrentLimit(60);
+        elevatorMotionMagicConfigs.withMotionMagicAcceleration(3)
+                          .withMotionMagicCruiseVelocity(3);
+        
         elevatorFeedback.SensorToMechanismRatio = elevator_ratio;
         elevatorOutputConfig.NeutralMode = NeutralModeValue.Brake;
         elevatorOutputConfig.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -213,7 +220,7 @@ public class Elevator extends SubsystemBase
 
         throttle = throttleSupplier.get();
         voltage.Output = throttle*5;
-        //elevator.setControl(voltage);
+        pivot.setControl(voltage);
         
         //throttle_adjust_coral_wrist = throttle * -1 * Units.degreesToRadians(5);
 
@@ -270,6 +277,7 @@ public class Elevator extends SubsystemBase
             case NEUTRAL:
                 elevator_setpoint = 0.2;
                 tomahawk_setpoint = -0.15;
+                coral_volt.Output = 0;
                 break;
 
             case LOADING:
@@ -281,33 +289,37 @@ public class Elevator extends SubsystemBase
             case L1_CORAL:
                 elevator_setpoint = 1;
                 tomahawk_setpoint = -0.18;
+                coral_volt.Output = 0;
                 break;
 
             case L2_CORAL:
-                elevator_setpoint = 2;
-                tomahawk_setpoint = -0.1;
+                elevator_setpoint = 2.5;
+                tomahawk_setpoint = -0.2;
+                coral_volt.Output = 0;
                 break;
 
             case L3_CORAL:
-                elevator_setpoint = 3;
-                tomahawk_setpoint = 0;
+                elevator_setpoint = 4.5;
+                tomahawk_setpoint = -0.2;
+                coral_volt.Output = 0;
                 break;
 
             case L4_CORAL:
-                elevator_setpoint = 5;
+                elevator_setpoint = 5.4;
                 tomahawk_setpoint = 0.05;
+                coral_volt.Output = 0;
                 break;
 
             case HIGH_ALGAE:
-                elevator_setpoint = 3;
-                tomahawk_setpoint = 0.05;
-                coral_volt.Output = 6;
+                elevator_setpoint = 0.5;
+                tomahawk_setpoint = 0;
+                coral_volt.Output = 12;
                 break;
 
             case LOW_ALGAE:
-                elevator_setpoint = 5;
-                tomahawk_setpoint = 0.05;
-                coral_volt.Output = 6;
+                elevator_setpoint = 0;
+                tomahawk_setpoint = -0.1;
+                coral_volt.Output = 12;
                 break;
 
             default:
@@ -340,7 +352,7 @@ public class Elevator extends SubsystemBase
                 break;
 
             case L4_CORAL:
-                coral_volt.Output = 6;
+                coral_volt.Output = -6;
                 break;
 
             case NEUTRAL:

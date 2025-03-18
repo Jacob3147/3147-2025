@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Utility.TunerConstants;
 import frc.robot.Utility.Constants.LocalizationConstants;
-import frc.robot.Commands.DriveToPose;
+import frc.robot.commands.DriveToPose;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
@@ -119,7 +119,7 @@ public class RobotContainer
             .andThen(Commands.runOnce(() -> drivetrain.resetPose(new Pose2d(3.141, 4.031, new Rotation2d(0))))));
 
 
-        joystick.trigger().onTrue(Commands.runOnce(() -> elevator.score()));
+        joystick.trigger().whileTrue(Commands.run(() -> elevator.score()));
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
