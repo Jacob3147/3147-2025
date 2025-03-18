@@ -4,40 +4,26 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
-
-import java.util.Map;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveModule.ModuleRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SelectCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Utility.TunerConstants;
-import frc.robot.Utility.Constants.DriveConstants;
 import frc.robot.Utility.Constants.LocalizationConstants;
-import frc.robot.commands.DriveToPose;
+import frc.robot.Commands.DriveToPose;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
-
-import static frc.robot.Utility.Constants.GlobalConstants.*;
 
 public class RobotContainer 
 {
@@ -93,14 +79,11 @@ public class RobotContainer
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
                 drive
-                .withVelocityX(((-1 * joystick.getThrottle() + 3)/4)
-                              * (-1 * joystick.getY()) 
-                              * TunerConstants.kMaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(((-1 *joystick.getThrottle() + 3)/4)
-                              * (-1*joystick.getX()) 
-                              * TunerConstants.kMaxSpeed) // Drive left with negative X (left)
-                .withRotationalRate(((-1 * joystick.getThrottle() + 3)/4) 
-                                    * (joystick.getTwist() > 0 ? -1 : 1)
+                .withVelocityX((-1 * joystick.getY()) 
+                               * TunerConstants.kMaxSpeed) // Drive forward with negative Y (forward)
+                .withVelocityY((-1*joystick.getX()) 
+                               * TunerConstants.kMaxSpeed) // Drive left with negative X (left)
+                .withRotationalRate((joystick.getTwist() > 0 ? -1 : 1)
                                     * Math.pow((-1*joystick.getTwist()),2) 
                                     * TunerConstants.kMaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
@@ -116,19 +99,27 @@ public class RobotContainer
         buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
         buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
         buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
-        //buttonBox.button(5) NET
-        buttonBox.button(6).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.LOADING));
+        //5 is labeled net
+        buttonBox.button(5).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
+        buttonBox.button(6).whileTrue(
+            Commands.startEnd(() -> elevator.state = ElevatorState.LOADING,
+                              () -> elevator.state = ElevatorState.NEUTRAL));
         //buttonBox.button(7) PROCESSOR
         //buttonBox.button(8) GROUND ALGAE
-        //buttonBox.button(9) HIGH REEF ALGAE
-        //buttonBox.button(10) LOW REEF ALGAE
-        
+        buttonBox.button(9).whileTrue(
+            Commands.startEnd(() -> elevator.state = ElevatorState.HIGH_ALGAE,
+                              () -> elevator.state = ElevatorState.NEUTRAL));
+        buttonBox.button(10).whileTrue(
+            Commands.startEnd(() -> elevator.state = ElevatorState.LOW_ALGAE,
+                              () -> elevator.state = ElevatorState.NEUTRAL));
+
 
         joystick.button(7).or(joystick.button(8)).onTrue(
             drivetrain.runOnce(() -> drivetrain.seedFieldCentric())
             .andThen(Commands.runOnce(() -> drivetrain.resetPose(new Pose2d(3.141, 4.031, new Rotation2d(0))))));
 
 
+        joystick.trigger().onTrue(Commands.runOnce(() -> elevator.score()));
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 

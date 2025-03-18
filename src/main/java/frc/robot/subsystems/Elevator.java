@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.Utility.Constants.ElevatorConstants.*;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -22,11 +23,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -44,6 +42,8 @@ public class Elevator extends SubsystemBase
         L2_CORAL,
         L3_CORAL,
         L4_CORAL,
+        LOW_ALGAE,
+        HIGH_ALGAE
     }
 
     public ElevatorState state = ElevatorState.START_1;
@@ -66,7 +66,7 @@ public class Elevator extends SubsystemBase
 
     double tomahawk_encoder_position;
     double tomahawk_kraken_position;
-    double tomahawk_offset = -4.56;
+    double tomahawk_offset = -0.7257;
 
 
     TalonFXS coral_intake;
@@ -82,7 +82,6 @@ public class Elevator extends SubsystemBase
 
     double pivot_kraken_position;
     double pivot_encoder_position;
-    double pivot_position_temp;
     double pivot_offset = 0;
 
 
@@ -90,6 +89,9 @@ public class Elevator extends SubsystemBase
     double throttle;
 
     VoltageOut voltage = new VoltageOut(0);
+
+    DigitalInput beam_break;
+    BooleanSupplier beam_break_supplier;
     
     public Elevator(Supplier<Double> throttleSupplier)
     {
@@ -97,6 +99,7 @@ public class Elevator extends SubsystemBase
         this.throttleSupplier = throttleSupplier;
         tomahawk_encoder = new DutyCycleEncoder(0);
         pivot_encoder = new DutyCycleEncoder(1);
+        beam_break = new DigitalInput(2);
 
 
         tomahawk       = new TalonFX(tomahawk_ID,        "rio");
@@ -143,7 +146,7 @@ public class Elevator extends SubsystemBase
                      .withKV(tomahawk_KV_down).withKS(tomahawk_KS).withKG(tomahawk_KG)
                      .withKP(tomahawk_KP_down).withKD(tomahawk_KD_down);
 
-        tomahawkCurrentLimit.withStatorCurrentLimit(40);
+        tomahawkCurrentLimit.withStatorCurrentLimit(60);
         tomahawkMotionMagicConfigs.withMotionMagicAcceleration(1)
                           .withMotionMagicCruiseVelocity(1);
         tomahawkFeedback.SensorToMechanismRatio = tomahawk_ratio;
@@ -155,8 +158,8 @@ public class Elevator extends SubsystemBase
                      .withKV(elevator_KV).withKS(elevator_KS).withKG(elevator_KG)
                      .withKP(elevator_KP).withKD(elevator_KD);
         elevatorCurrentLimit.withStatorCurrentLimit(40);
-        elevatorMotionMagicConfigs.withMotionMagicAcceleration(1)
-                          .withMotionMagicCruiseVelocity(1);
+        elevatorMotionMagicConfigs.withMotionMagicAcceleration(4)
+                          .withMotionMagicCruiseVelocity(4);
         elevatorFeedback.SensorToMechanismRatio = elevator_ratio;
         elevatorOutputConfig.NeutralMode = NeutralModeValue.Brake;
         elevatorOutputConfig.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -183,7 +186,8 @@ public class Elevator extends SubsystemBase
         pivot       .getConfigurator().apply(pivot_config);
 
 
-        tomahawk.setPosition(tomahawk_encoder.get() + Units.radiansToRotations(tomahawk_offset));
+        tomahawk.setPosition(tomahawk_encoder.get() + tomahawk_offset);
+        pivot.setPosition(pivot_encoder.get() + pivot_offset);
 
     }    
 
@@ -191,6 +195,13 @@ public class Elevator extends SubsystemBase
     @Override
     public void periodic() 
     {
+        /*
+        if(state = ElevatorState.LOADING && beam_break.get())
+        {
+            state = ElevatorState.NEUTRAL;
+        }
+         */
+
         if(tomahawk.getPosition(true).getValueAsDouble() > tomahawk_setpoint)
         {
             tomahawk_motion_request.withSlot(1);
@@ -203,14 +214,13 @@ public class Elevator extends SubsystemBase
         throttle = throttleSupplier.get();
         voltage.Output = throttle*5;
         //elevator.setControl(voltage);
-        //tomahawk.setControl(voltage);
         
         //throttle_adjust_coral_wrist = throttle * -1 * Units.degreesToRadians(5);
 
         
 
         coral_intake.setControl(coral_volt);
-        //elevatorControl(elevator_setpoint);
+        elevatorControl(elevator_setpoint);
         tomahawkControl(tomahawk_setpoint);
 
 
@@ -222,15 +232,17 @@ public class Elevator extends SubsystemBase
         //thru bore
         tomahawk_position = Units.rotationsToRadians(tomahawk_encoder.get()) + tomahawk_offset;
 
-        pivot_position_temp = (/*-1 * */Units.rotationsToRadians(pivot_encoder.get()) + Units.degreesToRadians(pivot_offset));
+        pivot_encoder_position = /*-1 * */pivot_encoder.get();
         
         
         SmartDashboard.putNumber("elevator", elevator_position);
         SmartDashboard.putNumber("tomahawk kraken", tomahawk_kraken_position);
         SmartDashboard.putNumber("tomahawk encoder", tomahawk_position);
         SmartDashboard.putNumber("pivot kraken", pivot_kraken_position);
-        SmartDashboard.putNumber("pivot encoder", pivot_position_temp);
+        SmartDashboard.putNumber("pivot encoder", pivot_encoder_position);
         SmartDashboard.putNumber("throttle", throttle);
+
+        SmartDashboard.putBoolean("beam break", beam_break.get());
 
         SmartDashboard.putString("state", state.toString());
         SmartDashboard.putString("queued", queued.toString());
@@ -238,51 +250,64 @@ public class Elevator extends SubsystemBase
         switch(state)
         {
             case START_1:
-                elevator_setpoint = 0;
+                elevator_setpoint = 0.2;
                 tomahawk_setpoint = 0;
                 unstow();
                 break;
 
             case START_2:
-                elevator_setpoint = 0;
+                elevator_setpoint = 0.2;
                 tomahawk_setpoint = 0;
                 unstow();
                 break;
 
             case START_3:
-                elevator_setpoint = 0;
+                elevator_setpoint = 0.2;
                 tomahawk_setpoint = 0;
                 unstow();
                 break;
 
             case NEUTRAL:
-                elevator_setpoint = 0;
+                elevator_setpoint = 0.2;
                 tomahawk_setpoint = -0.15;
                 break;
 
             case LOADING:
-                elevator_setpoint = 0;
-                tomahawk_setpoint = 0;
+                elevator_setpoint = 0.2;
+                tomahawk_setpoint = -0.23;
+                coral_volt.Output = 3;
                 break;
 
             case L1_CORAL:
-                elevator_setpoint = 0;
+                elevator_setpoint = 1;
                 tomahawk_setpoint = -0.18;
                 break;
 
             case L2_CORAL:
-                elevator_setpoint = 0;
+                elevator_setpoint = 2;
                 tomahawk_setpoint = -0.1;
                 break;
 
             case L3_CORAL:
-                elevator_setpoint = 0;
+                elevator_setpoint = 3;
                 tomahawk_setpoint = 0;
                 break;
 
             case L4_CORAL:
-                elevator_setpoint = 0;
+                elevator_setpoint = 5;
                 tomahawk_setpoint = 0.05;
+                break;
+
+            case HIGH_ALGAE:
+                elevator_setpoint = 3;
+                tomahawk_setpoint = 0.05;
+                coral_volt.Output = 6;
+                break;
+
+            case LOW_ALGAE:
+                elevator_setpoint = 5;
+                tomahawk_setpoint = 0.05;
+                coral_volt.Output = 6;
                 break;
 
             default:
@@ -292,12 +317,6 @@ public class Elevator extends SubsystemBase
        
     }
 
-
-    public void coral_intake_slow() { coral_volt.Output = -1; }
-    public void start_coral_intake() { coral_volt.Output = -12; }
-    public void stop_coral_intake() { coral_volt.Output = 0; }
-    public void reverse_coral_intake() { coral_volt.Output = 12; }
-    public void soft_coral_eject() {  coral_volt.Output = 4; }
  
     public void execQueued()
     {
@@ -308,15 +327,20 @@ public class Elevator extends SubsystemBase
     {
         switch(state) {
             case L1_CORAL:
+                coral_volt.Output = 3;
                 break;
 
             case L2_CORAL:
+                coral_volt.Output = 6;
                 break;
+                
 
             case L3_CORAL:
+                coral_volt.Output = 6;
                 break;
 
             case L4_CORAL:
+                coral_volt.Output = 6;
                 break;
 
             case NEUTRAL:
@@ -340,19 +364,6 @@ public class Elevator extends SubsystemBase
     void unstow()
     {
         state = ElevatorState.NEUTRAL;
-        /* 
-        if(coral_position >= -30) 
-        {
-            state = ElevatorState.START_2;
-        }
-        if(tomahawk_position >= (tomahawk_start + 0.2))
-        {
-            state = ElevatorState.START_3;
-        }
-        if(algae_position >= 0)
-        {
-            state = ElevatorState.NEUTRAL;
-        }*/
     }
 
     double algae_PID_out;
