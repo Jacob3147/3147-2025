@@ -15,7 +15,7 @@ import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -93,7 +93,7 @@ public class Elevator extends SubsystemBase
     VoltageOut voltage = new VoltageOut(0);
 
     DigitalInput beam_break;
-    BooleanSupplier beam_break_supplier;
+    public BooleanSupplier beam_break_supplier;
 
     
     MotionMagicConfigs elevatorMotionMagicConfigs;
@@ -123,7 +123,6 @@ public class Elevator extends SubsystemBase
 
         elevator_config = new TalonFXConfiguration();
         Slot0Configs elevatorSlot0 = elevator_config.Slot0;
-        Slot1Configs elevatorSlot1 = elevator_config.Slot1;
         CurrentLimitsConfigs elevatorCurrentLimit = elevator_config.CurrentLimits;
         elevatorMotionMagicConfigs =  elevator_config.MotionMagic;
         FeedbackConfigs elevatorFeedback = elevator_config.Feedback;
@@ -203,6 +202,7 @@ public class Elevator extends SubsystemBase
     @Override
     public void periodic() 
     {
+        beam_break_supplier = () -> beam_break.get();
         /*
         if(state = ElevatorState.LOADING && beam_break.get())
         {

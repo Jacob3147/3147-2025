@@ -10,6 +10,8 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -52,15 +54,19 @@ public class RobotContainer
     Supplier<Pose2d> target_pose = () -> LocalizationConstants.reef_1L;
 
     private final DriveToPose drivePoseCommand = new DriveToPose(drivetrain, target_pose, joystick);
+    private final DriveToPose drivePoseCommandAuto = new DriveToPose(drivetrain, target_pose, joystick);
 
+    
 
     public RobotContainer() {
 
-        //NamedCommands.registerCommand("Go to L1", Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
-        //NamedCommands.registerCommand("Go to L2", Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
-        //NamedCommands.registerCommand("Go to L3", Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
-        //NamedCommands.registerCommand("Score Coral", Commands.runOnce(() -> elevator.reverse_coral_intake()));
-        //NamedCommands.registerCommand("Neutral", Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
+        NamedCommands.registerCommand("Go to L1", Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
+        NamedCommands.registerCommand("Go to L2", Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
+        NamedCommands.registerCommand("Go to L3", Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
+        NamedCommands.registerCommand("Go to L4", Commands.runOnce(() -> elevator.state = ElevatorState.L4_CORAL));
+        NamedCommands.registerCommand("Score Coral", Commands.run(() -> elevator.score()).withTimeout(0.5));
+        NamedCommands.registerCommand("Neutral", Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
+        NamedCommands.registerCommand("Intake", Commands.run(() -> elevator.state = ElevatorState.LOADING).until(elevator.beam_break_supplier));
         
         configureBindings();
         while(!AutoBuilder.isConfigured())
@@ -171,8 +177,8 @@ public class RobotContainer
         return autoChooser.getSelected();
     }
 
-    /*public void elevator_neutral()
+    public void elevator_neutral()
     {
         elevator.state = ElevatorState.NEUTRAL;
-    }*/
+    }
 }
