@@ -83,6 +83,7 @@ public class Elevator extends SubsystemBase
 
     double pivot_kraken_position;
     double pivot_encoder_position;
+    double pivot_temp;
     double pivot_offset = -.26;
 
 
@@ -194,7 +195,7 @@ public class Elevator extends SubsystemBase
 
 
         tomahawk.setPosition(tomahawk_encoder.get() + tomahawk_offset);
-        pivot.setPosition(pivot_encoder.get() + pivot_offset);
+        //pivot.setPosition(pivot_encoder.get() + pivot_offset);
 
     }    
 
@@ -239,7 +240,9 @@ public class Elevator extends SubsystemBase
         //thru bore
         tomahawk_position = Units.rotationsToRadians(tomahawk_encoder.get()) + tomahawk_offset;
 
-        pivot_encoder_position = /*-1 * */pivot_encoder.get();
+        pivot_temp = pivot_encoder.get() + pivot_offset;
+        if(pivot_temp < 0) pivot_encoder_position = pivot_temp + 1;
+        else pivot_encoder_position = pivot_temp;
         
         
         SmartDashboard.putNumber("elevator", elevator_position);

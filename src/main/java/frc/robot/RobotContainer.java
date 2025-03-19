@@ -88,10 +88,56 @@ public class RobotContainer
                                     * TunerConstants.kMaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
 
+            joystick.button(2).whileTrue(drivePoseCommand);
+
+            joystick.trigger().whileTrue(Commands.run(() -> elevator.score()));
+
+            joystick.button(7).or(joystick.button(8)).onTrue(
+                drivetrain.runOnce(() -> drivetrain.seedFieldCentric())
+                .andThen(Commands.runOnce(() -> drivetrain.resetPose(new Pose2d(3.141, 4.031, new Rotation2d(0))))));
+
         
-        joystick.button(9).onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_1L));
-        
-        joystick.button(2).whileTrue(drivePoseCommand);
+        buttonBox2.button(1)
+            .and(buttonBox2.button(10))
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_1L));
+        buttonBox2.button(1)
+            .and(buttonBox2.button(10).negate())
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_1R));
+
+        buttonBox2.button(2)
+            .and(buttonBox2.button(10))
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_2L));
+        buttonBox2.button(2)
+            .and(buttonBox2.button(10).negate())
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_2R));
+
+        buttonBox2.button(3)
+            .and(buttonBox2.button(10))
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_3L));
+        buttonBox2.button(3)
+            .and(buttonBox2.button(10).negate())
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_3R));
+
+        buttonBox2.button(4)
+            .and(buttonBox2.button(10))
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_4L));
+        buttonBox2.button(4)
+            .and(buttonBox2.button(10).negate())
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_4R));
+
+        buttonBox2.button(5)
+            .and(buttonBox2.button(10))
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_5L));
+        buttonBox2.button(5)
+            .and(buttonBox2.button(10).negate())
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_5R));
+
+        buttonBox2.button(6)
+            .and(buttonBox2.button(10))
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_6L));
+        buttonBox2.button(6)
+            .and(buttonBox2.button(10).negate())
+                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_6R));
 
         
         //Button box decides which state will be next
@@ -99,8 +145,7 @@ public class RobotContainer
         buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
         buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
         buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
-        //5 is labeled net
-        buttonBox.button(5).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
+        buttonBox.button(5).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL)); //5 is labeled net
         buttonBox.button(6).whileTrue(
             Commands.startEnd(() -> elevator.state = ElevatorState.LOADING,
                               () -> elevator.state = ElevatorState.NEUTRAL));
@@ -114,12 +159,11 @@ public class RobotContainer
                               () -> elevator.state = ElevatorState.NEUTRAL));
 
 
-        joystick.button(7).or(joystick.button(8)).onTrue(
-            drivetrain.runOnce(() -> drivetrain.seedFieldCentric())
-            .andThen(Commands.runOnce(() -> drivetrain.resetPose(new Pose2d(3.141, 4.031, new Rotation2d(0))))));
+        
 
 
-        joystick.trigger().whileTrue(Commands.run(() -> elevator.score()));
+        
+
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 

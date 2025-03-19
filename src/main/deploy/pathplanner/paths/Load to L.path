@@ -45,7 +45,7 @@
     "rotation": -59.99999999999999
   },
   "reversed": false,
-  "folder": "JKL",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 126.20945681718605
