@@ -102,6 +102,9 @@ public class RobotContainer
                 drivetrain.runOnce(() -> drivetrain.seedFieldCentric())
                 .andThen(Commands.runOnce(() -> drivetrain.resetPose(new Pose2d(3.141, 4.031, new Rotation2d(0))))));
 
+            joystick.button(11).or(joystick.button(12)).onTrue(
+                Commands.runOnce(() -> elevator.state = elevator.queued));
+
         
         buttonBox2.button(1)
             .and(buttonBox2.button(10))
@@ -147,10 +150,10 @@ public class RobotContainer
 
         
         //Button box decides which state will be next
-        buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L4_CORAL));
-        buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
-        buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
-        buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
+        buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L4_CORAL));
+        buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L3_CORAL));
+        buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L2_CORAL));
+        buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L1_CORAL));
         buttonBox.button(5).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL)); //5 is labeled net
         buttonBox.button(6).whileTrue(
             Commands.startEnd(() -> elevator.state = ElevatorState.LOADING,

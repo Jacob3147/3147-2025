@@ -80,11 +80,12 @@ public final class Constants
         public static final double tomahawk_KP_down = 3;
         public static final double tomahawk_KD_down = 0;
 
-        public static final double pivot_KG = 0;
-        public static final double pivot_KS = 0;
-        public static final double pivot_KV = 0 / (kraken_free_speed * pivot_sprocket_diameter / pivot_ratio);
-        public static final double pivot_KP = 0;
-        public static final double pivot_KD = 0;
+        public static final double pivot_KG = 0.6;
+        public static final double pivot_KS = 0.05;
+        public static final double pivot_KV = 12 / (kraken_free_speed / pivot_ratio);
+        public static final double pivot_KP = 15;
+        public static final double pivot_KI = 0;
+        public static final double pivot_KD = 1;
 
 
         //elevator hard max 5.45
