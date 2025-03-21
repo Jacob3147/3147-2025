@@ -11,9 +11,11 @@ import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Utility.TunerConstants;
 import frc.robot.Utility.Constants.LocalizationConstants;
 import frc.robot.commands.DriveToPose;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
@@ -49,6 +52,7 @@ public class RobotContainer
             .withDesaturateWheelSpeeds(true);
 
     private final Elevator elevator = new Elevator(() -> joystick.getThrottle());
+    private final Climber climber = new Climber(() -> joystick.getThrottle());
 
     private final SendableChooser<Command> autoChooser;
     Supplier<Pose2d> target_pose = () -> LocalizationConstants.reef_1L;
@@ -59,14 +63,12 @@ public class RobotContainer
     
 
     public RobotContainer() {
-
-        NamedCommands.registerCommand("Go to L1", Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
-        NamedCommands.registerCommand("Go to L2", Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
-        NamedCommands.registerCommand("Go to L3", Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
-        NamedCommands.registerCommand("Go to L4", Commands.runOnce(() -> elevator.state = ElevatorState.L4_CORAL));
-        NamedCommands.registerCommand("Score Coral", Commands.run(() -> elevator.score()).withTimeout(0.5));
-        NamedCommands.registerCommand("Neutral", Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
-        NamedCommands.registerCommand("Intake", Commands.run(() -> elevator.state = ElevatorState.LOADING).until(elevator.beam_break_supplier));
+        new EventTrigger("Go to L4").onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L4_CORAL));
+        new EventTrigger("Score Coral").onTrue(Commands.run(() -> elevator.score()).withTimeout(0.5));
+        new EventTrigger("Neutral").onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
+        new EventTrigger("Intake").onTrue(Commands.run(() -> elevator.state = ElevatorState.LOADING).until(elevator.beam_break_supplier));
+        
+        
         
         configureBindings();
         while(!AutoBuilder.isConfigured())
@@ -76,6 +78,7 @@ public class RobotContainer
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("autoChooser", autoChooser);
 
+        
        
     }
 
@@ -105,6 +108,15 @@ public class RobotContainer
             joystick.button(11).or(joystick.button(12)).onTrue(
                 Commands.runOnce(() -> elevator.state = elevator.queued));
 
+
+            joystick.button(3).whileTrue(
+                Commands.startEnd(() -> elevator.manual_feed_down = true,
+                                  () -> elevator.manual_feed_down = false));
+
+            joystick.button(4).whileTrue(
+                Commands.startEnd(() -> elevator.manual_feed_up = true,
+                                  () -> elevator.manual_feed_up = false));
+ 
         
         buttonBox2.button(1)
             .and(buttonBox2.button(10))
@@ -155,11 +167,14 @@ public class RobotContainer
         buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L2_CORAL));
         buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L1_CORAL));
         buttonBox.button(5).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL)); //5 is labeled net
-        buttonBox.button(6).whileTrue(
+        /*buttonBox.button(6).whileTrue(
             Commands.startEnd(() -> elevator.state = ElevatorState.LOADING,
-                              () -> elevator.state = ElevatorState.NEUTRAL));
-        //buttonBox.button(7) PROCESSOR
-        //buttonBox.button(8) GROUND ALGAE
+                              () -> elevator.state = ElevatorState.NEUTRAL));*/
+        buttonBox.button(6).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.LOADING)
+                                 
+        .andThen(Commands.runOnce(() -> elevator.load_start_time = Timer.getFPGATimestamp())));
+        buttonBox.button(7).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.CLIMBING)); //PROCESSOR = CLIMB IN
+        //buttonBox.button(8) GROUND ALGAE = CLIMB OUT
         buttonBox.button(9).whileTrue(
             Commands.startEnd(() -> elevator.state = ElevatorState.HIGH_ALGAE,
                               () -> elevator.state = ElevatorState.NEUTRAL));
@@ -182,6 +197,6 @@ public class RobotContainer
 
     public void elevator_neutral()
     {
-        elevator.state = ElevatorState.NEUTRAL;
+        elevator.state = ElevatorState.START_1;
     }
 }

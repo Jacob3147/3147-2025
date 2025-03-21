@@ -27,6 +27,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -95,6 +96,8 @@ public class Elevator extends SubsystemBase
     DigitalInput beam_break;
     public BooleanSupplier beam_break_supplier = () -> false;
 
+    public boolean manual_feed_down = false;
+    public boolean manual_feed_up = false;
     
     MotionMagicConfigs elevatorMotionMagicConfigs;
     public Elevator(Supplier<Double> throttleSupplier)
@@ -200,16 +203,28 @@ public class Elevator extends SubsystemBase
     }    
 
     double throttle_adjust_coral_wrist;
+    double minion_current;
+    double minion_current_prev;
+    double minion_delta;
+    public double load_start_time;
     @Override
     public void periodic() 
     {
         beam_break_supplier = () -> beam_break.get();
-        /*
-        if(state = ElevatorState.LOADING && beam_break.get())
+        
+        minion_current = coral_intake.getStatorCurrent(true).getValueAsDouble();
+        minion_delta = Math.abs(minion_current - minion_current_prev);
+        if(state == ElevatorState.LOADING)
         {
-            state = ElevatorState.NEUTRAL;
+            if(Timer.getFPGATimestamp() - load_start_time > 1)
+            {
+                if(minion_current > 3 && minion_delta > 1)
+                {
+                    state = ElevatorState.NEUTRAL;
+                }
+            }
         }
-         */
+        minion_current_prev = minion_current;
 
         
 
@@ -247,6 +262,9 @@ public class Elevator extends SubsystemBase
 
         pivot_encoder_position = (pivot_encoder.get() > 0.8) ? pivot_encoder.get() + pivot_offset - 1 : pivot_encoder.get() + pivot_offset;
         
+        SmartDashboard.putNumber("minion current", minion_current);
+        SmartDashboard.putNumber("minion current prev", minion_current_prev);
+        SmartDashboard.putNumber("minion delta", minion_delta);
         SmartDashboard.putNumber("elevator", elevator_position);
         SmartDashboard.putNumber("tomahawk kraken", tomahawk_kraken_position);
         SmartDashboard.putNumber("tomahawk encoder", tomahawk_position);
@@ -265,13 +283,13 @@ public class Elevator extends SubsystemBase
                 elevator_setpoint = 0.2;
                 tomahawk_setpoint = -0.15;
                 pivot_setpoint = 0.25;
-                unstow();
+                if(tomahawk.getPosition(true).getValueAsDouble() > -0.12) state = ElevatorState.NEUTRAL;
                 break;
 
 
             case NEUTRAL:
                 elevator_setpoint = 0.2;
-                tomahawk_setpoint = -0.15;
+                tomahawk_setpoint = -0.23;
                 pivot_setpoint = 0.17;
                 coral_volt.Output = 0;
                 break;
@@ -280,7 +298,7 @@ public class Elevator extends SubsystemBase
                 elevator_setpoint = 0.2;
                 tomahawk_setpoint = -0.23;
                 pivot_setpoint = 0.17;
-                coral_volt.Output = 3;
+                coral_volt.Output = 2;
                 break;
 
             case L1_CORAL:
@@ -336,6 +354,9 @@ public class Elevator extends SubsystemBase
                 break;
             
         }
+
+        if(manual_feed_up) coral_volt.Output = -1;
+        if(manual_feed_down) coral_volt.Output = 1;
        
     }
 
@@ -372,19 +393,12 @@ public class Elevator extends SubsystemBase
                 break;
 
             case START_1:
-                unstow();
                 break;
             default:
                 break;
         }
     }
 
-    
-
-    void unstow()
-    {
-        if(tomahawk.getPosition(true).getValueAsDouble() > -0.2) state = ElevatorState.NEUTRAL;
-    }
 
     double algae_PID_out;
     double algae_FF_out;
