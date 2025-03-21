@@ -35,7 +35,6 @@ public class Elevator extends SubsystemBase
 {
     public enum ElevatorState
     {
-        START_1,
         NEUTRAL,
         LOADING,
         L1_CORAL,
@@ -47,7 +46,7 @@ public class Elevator extends SubsystemBase
         CLIMBING
     }
 
-    public ElevatorState state = ElevatorState.START_1;
+    public ElevatorState state = ElevatorState.NEUTRAL;
     public ElevatorState queued = ElevatorState.NEUTRAL;
 
 
@@ -279,14 +278,6 @@ public class Elevator extends SubsystemBase
 
         switch(state)
         {
-            case START_1:
-                elevator_setpoint = 0.2;
-                tomahawk_setpoint = -0.15;
-                pivot_setpoint = 0.25;
-                if(tomahawk.getPosition(true).getValueAsDouble() > -0.12) state = ElevatorState.NEUTRAL;
-                break;
-
-
             case NEUTRAL:
                 elevator_setpoint = 0.2;
                 tomahawk_setpoint = -0.23;
@@ -392,8 +383,6 @@ public class Elevator extends SubsystemBase
             case LOADING:
                 break;
 
-            case START_1:
-                break;
             default:
                 break;
         }

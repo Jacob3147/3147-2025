@@ -61,10 +61,10 @@ public class RobotContainer
     
 
     public RobotContainer() {
-        new EventTrigger("Go to L4").onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L4_CORAL));
-        new EventTrigger("Score Coral").onTrue(Commands.run(() -> elevator.score()).withTimeout(0.5));
-        new EventTrigger("Neutral").onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
-        new EventTrigger("Intake").onTrue(Commands.run(() -> elevator.state = ElevatorState.LOADING).until(elevator.beam_break_supplier));
+        NamedCommands.registerCommand("Go to L4",Commands.runOnce(() -> elevator.state = ElevatorState.L4_CORAL));
+        NamedCommands.registerCommand("Score Coral",Commands.run(() -> elevator.score()).withTimeout(0.5));
+        NamedCommands.registerCommand("Neutral",Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
+        NamedCommands.registerCommand("Loading",Commands.run(() -> elevator.state = ElevatorState.LOADING).until(elevator.beam_break_supplier));
         
         
         
@@ -205,6 +205,6 @@ public class RobotContainer
 
     public void elevator_neutral()
     {
-        elevator.state = ElevatorState.START_1;
+        elevator.state = ElevatorState.NEUTRAL;
     }
 }
