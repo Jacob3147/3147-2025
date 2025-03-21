@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Go to L1"
+            "name": "Go to L4"
           }
         },
         {
@@ -38,6 +38,18 @@
           "type": "named",
           "data": {
             "name": "Score Coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "GH back"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Neutral"
           }
         }
       ]

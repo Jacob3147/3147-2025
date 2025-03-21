@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Go to L1"
+            "name": "Go to L4"
           }
         },
         {
@@ -41,22 +41,21 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "IJ to load"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Neutral"
-                }
-              }
-            ]
+            "pathName": "IJ back"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Neutral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "IJ to load"
           }
         }
       ]

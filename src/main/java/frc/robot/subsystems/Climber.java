@@ -30,6 +30,8 @@ public class Climber extends SubsystemBase
     Supplier<Double> throttleSupplier;
     double throttle;
 
+    double volts;
+
     public Climber(Supplier<Double> throttleSupplier)
     {
         climbMotor = new SparkMax(30, MotorType.kBrushless);
@@ -60,9 +62,24 @@ public class Climber extends SubsystemBase
         control(climbSetpoint);
     }
 
+    public void up()
+    {
+        volts = 12;
+    }
+
+    public void out()
+    {
+        volts = -6;
+    }
+
+    public void stop()
+    {
+        volts = 0;
+    }
+
     void control(double SP)
     {
-        climbMotor.setVoltage(0);
+        climbMotor.setVoltage(volts);
 
 
         double PIDout = PID.calculate(climbPosition, SP);

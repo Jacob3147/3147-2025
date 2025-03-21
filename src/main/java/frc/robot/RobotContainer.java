@@ -58,8 +58,6 @@ public class RobotContainer
     Supplier<Pose2d> target_pose = () -> LocalizationConstants.reef_1L;
 
     private final DriveToPose drivePoseCommand = new DriveToPose(drivetrain, target_pose, joystick);
-    private final DriveToPose drivePoseCommandAuto = new DriveToPose(drivetrain, target_pose, joystick);
-
     
 
     public RobotContainer() {
@@ -117,7 +115,7 @@ public class RobotContainer
                 Commands.startEnd(() -> elevator.manual_feed_up = true,
                                   () -> elevator.manual_feed_up = false));
  
-        
+        /*
         buttonBox2.button(1)
             .and(buttonBox2.button(10))
                 .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_1L));
@@ -159,7 +157,7 @@ public class RobotContainer
         buttonBox2.button(6)
             .and(buttonBox2.button(10).negate())
                 .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_6R));
-
+        */
         
         //Button box decides which state will be next
         buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L4_CORAL));
@@ -167,14 +165,24 @@ public class RobotContainer
         buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L2_CORAL));
         buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L1_CORAL));
         buttonBox.button(5).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL)); //5 is labeled net
-        /*buttonBox.button(6).whileTrue(
-            Commands.startEnd(() -> elevator.state = ElevatorState.LOADING,
-                              () -> elevator.state = ElevatorState.NEUTRAL));*/
         buttonBox.button(6).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.LOADING)
                                  
         .andThen(Commands.runOnce(() -> elevator.load_start_time = Timer.getFPGATimestamp())));
-        buttonBox.button(7).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.CLIMBING)); //PROCESSOR = CLIMB IN
-        //buttonBox.button(8) GROUND ALGAE = CLIMB OUT
+
+        buttonBox.button(7).whileTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> elevator.state = ElevatorState.CLIMBING),
+                Commands.run(() -> climber.up())
+            )); //PROCESSOR = CLIMB IN
+
+        buttonBox.button(8).whileTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> elevator.state = ElevatorState.CLIMBING),
+                Commands.run(() -> climber.out())
+            )); //GROUND ALGAE = CLIMB OUT
+
+        buttonBox.button(7).or(buttonBox.button(8)).onFalse(Commands.runOnce(() -> climber.stop()));
+
         buttonBox.button(9).whileTrue(
             Commands.startEnd(() -> elevator.state = ElevatorState.HIGH_ALGAE,
                               () -> elevator.state = ElevatorState.NEUTRAL));
