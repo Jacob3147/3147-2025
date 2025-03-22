@@ -283,7 +283,7 @@ public class Elevator extends SubsystemBase
         {
             case NEUTRAL:
                 elevator_setpoint = 0.2;
-                tomahawk_setpoint = -0.23;
+                tomahawk_setpoint = -0.2;
                 pivot_setpoint = 0.17;
                 coral_volt.Output = 0;
                 break;

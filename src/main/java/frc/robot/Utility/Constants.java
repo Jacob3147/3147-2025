@@ -45,8 +45,8 @@ public final class Constants
         public static final double PathKI = 0;
         public static final double PathKD = 0;
         public static final double PathKP_Theta = 5;
-        public static final Constraints AlignConstraints = new Constraints(2, 4);
-        public static final Constraints AlignConstraints_rot = new Constraints(6, 10);
+        public static final Constraints AlignConstraints = new Constraints(1, 2);
+        public static final Constraints AlignConstraints_rot = new Constraints(4, 6);
 
     }
 
@@ -98,6 +98,8 @@ public final class Constants
 
     }
 
+    
+
     public static final class LocalizationConstants
     {
         public static String limelight_1_name = "limelight-one";
@@ -108,47 +110,69 @@ public final class Constants
     
         public static final Translation2d field_center = new Translation2d(field_length_meters / 2, field_width_meters / 2);
         
-        public static Pose2d reef_1R = new Pose2d(3.22,3.86,new Rotation2d(Units.degreesToRadians(0))); 
-        public static Pose2d reef_1L = new Pose2d(3.22,4.19,new Rotation2d(Units.degreesToRadians(0))); 
+        public static Pose2d reef_1R_blue;
+        public static Pose2d reef_1L_blue;
+        public static Pose2d reef_2R_blue;
+        public static Pose2d reef_2L_blue;
+        public static Pose2d reef_3R_blue;
+        public static Pose2d reef_3L_blue;
+        public static Pose2d reef_4R_blue;
+        public static Pose2d reef_4L_blue;
+        public static Pose2d reef_5R_blue;
+        public static Pose2d reef_5L_blue;
+        public static Pose2d reef_6R_blue;
+        public static Pose2d reef_6L_blue;
 
-        public static Pose2d reef_2R = new Pose2d(4.00,2.84,new Rotation2d(Units.degreesToRadians(60))); 
-        public static Pose2d reef_2L = new Pose2d(3.71,3.01,new Rotation2d(Units.degreesToRadians(60))); 
+        public static Pose2d reef_1R_red;
+        public static Pose2d reef_1L_red;
+        public static Pose2d reef_2R_red;
+        public static Pose2d reef_2L_red;
+        public static Pose2d reef_3R_red;
+        public static Pose2d reef_3L_red;
+        public static Pose2d reef_4R_red;
+        public static Pose2d reef_4L_red;
+        public static Pose2d reef_5R_red;
+        public static Pose2d reef_5L_red;
+        public static Pose2d reef_6R_red;
+        public static Pose2d reef_6L_red;
 
-        public static Pose2d reef_3R = new Pose2d(5.26,3.02,new Rotation2d(Units.degreesToRadians(120))); 
-        public static Pose2d reef_3L = new Pose2d(4.97,2.85,new Rotation2d(Units.degreesToRadians(120))); 
+        public static void setPoses()
+        {        
+            reef_1R_blue = new Pose2d(3.22,3.86,new Rotation2d(Units.degreesToRadians(0))); 
+            reef_1L_blue = new Pose2d(3.22,4.19,new Rotation2d(Units.degreesToRadians(0))); 
 
-        public static Pose2d reef_4R = new Pose2d(5.75,4.19,new Rotation2d(Units.degreesToRadians(180))); 
-        public static Pose2d reef_4L = new Pose2d(5.75,3.86,new Rotation2d(Units.degreesToRadians(180))); 
+            reef_2R_blue = new Pose2d(4.00,2.84,new Rotation2d(Units.degreesToRadians(60))); 
+            reef_2L_blue = new Pose2d(3.71,3.01,new Rotation2d(Units.degreesToRadians(60))); 
 
-        public static Pose2d reef_5R = new Pose2d(4.98,5.20,new Rotation2d(Units.degreesToRadians(240))); 
-        public static Pose2d reef_5L = new Pose2d(5.26,5.03,new Rotation2d(Units.degreesToRadians(240))); 
+            reef_3R_blue = new Pose2d(5.26,3.02,new Rotation2d(Units.degreesToRadians(120))); 
+            reef_3L_blue = new Pose2d(4.97,2.85,new Rotation2d(Units.degreesToRadians(120))); 
 
-        public static Pose2d reef_6R = new Pose2d(3.72,5.03,new Rotation2d(Units.degreesToRadians(300))); 
-        public static Pose2d reef_6L = new Pose2d(4.01,5.19,new Rotation2d(Units.degreesToRadians(300))); 
+            reef_4R_blue = new Pose2d(5.75,4.19,new Rotation2d(Units.degreesToRadians(180))); 
+            reef_4L_blue = new Pose2d(5.75,3.86,new Rotation2d(Units.degreesToRadians(180))); 
 
-        
-        //all poses are for blue alliance. If you create a pose, add it to this function to transform it for red.
-        public static void alliance_transform()
-        {
-            reef_1R = reef_1R.rotateAround(field_center, Rotation2d.k180deg);
-            reef_1L = reef_1L.rotateAround(field_center, Rotation2d.k180deg);
+            reef_5R_blue = new Pose2d(4.98,5.20,new Rotation2d(Units.degreesToRadians(240))); 
+            reef_5L_blue = new Pose2d(5.26,5.03,new Rotation2d(Units.degreesToRadians(240))); 
 
-            reef_2R = reef_2R.rotateAround(field_center, Rotation2d.k180deg);
-            reef_2L = reef_2L.rotateAround(field_center, Rotation2d.k180deg);
+            reef_6R_blue = new Pose2d(3.72,5.03,new Rotation2d(Units.degreesToRadians(300))); 
+            reef_6L_blue = new Pose2d(4.01,5.19,new Rotation2d(Units.degreesToRadians(300))); 
 
-            reef_3R = reef_3R.rotateAround(field_center, Rotation2d.k180deg);
-            reef_3L = reef_3L.rotateAround(field_center, Rotation2d.k180deg);
+            reef_1R_red = reef_1R_blue.rotateAround(field_center, Rotation2d.k180deg);
+            reef_1L_red = reef_1L_blue.rotateAround(field_center, Rotation2d.k180deg);
 
-            reef_4R = reef_4R.rotateAround(field_center, Rotation2d.k180deg);
-            reef_4L = reef_4L.rotateAround(field_center, Rotation2d.k180deg);
+            reef_2R_red = reef_2R_blue.rotateAround(field_center, Rotation2d.k180deg);
+            reef_2L_red = reef_2L_blue.rotateAround(field_center, Rotation2d.k180deg);
 
-            reef_5R = reef_5R.rotateAround(field_center, Rotation2d.k180deg);
-            reef_5L = reef_5L.rotateAround(field_center, Rotation2d.k180deg);
+            reef_3R_red = reef_3R_blue.rotateAround(field_center, Rotation2d.k180deg);
+            reef_3L_red = reef_3L_blue.rotateAround(field_center, Rotation2d.k180deg);
 
-            reef_6R = reef_6R.rotateAround(field_center, Rotation2d.k180deg);
-            reef_6L = reef_6L.rotateAround(field_center, Rotation2d.k180deg);
+            reef_4R_red = reef_4R_blue.rotateAround(field_center, Rotation2d.k180deg);
+            reef_4L_red = reef_4L_blue.rotateAround(field_center, Rotation2d.k180deg);
 
+            reef_5R_red = reef_5R_blue.rotateAround(field_center, Rotation2d.k180deg);
+            reef_5L_red = reef_5L_blue.rotateAround(field_center, Rotation2d.k180deg);
+
+            reef_6R_red = reef_6R_blue.rotateAround(field_center, Rotation2d.k180deg);
+            reef_6L_red = reef_6L_blue.rotateAround(field_center, Rotation2d.k180deg);
         }
-
     }
 }

@@ -55,7 +55,7 @@ public class RobotContainer
     private final Climber climber = new Climber(() -> joystick.getThrottle());
 
     private final SendableChooser<Command> autoChooser;
-    Supplier<Pose2d> target_pose = () -> LocalizationConstants.reef_1L;
+    Supplier<Pose2d> target_pose = () -> LocalizationConstants.reef_1L_blue;
 
     private final DriveToPose drivePoseCommand = new DriveToPose(drivetrain, target_pose, joystick);
     
@@ -66,7 +66,7 @@ public class RobotContainer
         NamedCommands.registerCommand("Neutral",Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL));
         NamedCommands.registerCommand("Loading",Commands.run(() -> elevator.state = ElevatorState.LOADING).until(elevator.beam_break_supplier));
         
-        
+        LocalizationConstants.setPoses();
         
         configureBindings();
         while(!AutoBuilder.isConfigured())

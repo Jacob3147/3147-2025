@@ -158,8 +158,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                         ? kRedAlliancePerspectiveRotation
                         : kBlueAlliancePerspectiveRotation
                 );
-
-                if(allianceColor == Alliance.Red) LocalizationConstants.alliance_transform();
                 
                 m_hasAppliedOperatorPerspective = true;
             });

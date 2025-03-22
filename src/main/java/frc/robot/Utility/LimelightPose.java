@@ -115,7 +115,7 @@ public class LimelightPose
                     return Optional.of(measurement);
                 }
 
-                if(TagCount_MT2 == 1 && AvgArea_MT2 > 0.6 && PoseDiff_MT2 < 0.5)
+                if(TagCount_MT2 == 1 && AvgArea_MT2 > 0.6 && PoseDiff_MT2 < 0.7)
                 {
                     xyDev = 0.3;
                     measurement.set(MT2.pose, MT2.timestampSeconds,xyDev,9999999, LL);

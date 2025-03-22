@@ -31,7 +31,7 @@ public class DriveToPose extends Command
     ProfiledPIDController alignmentPID_Y;
     ProfiledPIDController alignmentPID_Theta;
 
-    Supplier<Pose2d> poseSupplier = () -> LocalizationConstants.reef_1L;
+    Supplier<Pose2d> poseSupplier = () -> LocalizationConstants.reef_1L_blue;
 
     SwerveRequest.FieldCentric request = new SwerveRequest.FieldCentric();
 
@@ -42,18 +42,31 @@ public class DriveToPose extends Command
 
     public DriveToPose(CommandSwerveDrivetrain m_swerve, Supplier<Pose2d> poseSupplier, CommandJoystick joystick)
     {
-        poses.add(LocalizationConstants.reef_1L);
-        poses.add(LocalizationConstants.reef_1R);
-        poses.add(LocalizationConstants.reef_2L);
-        poses.add(LocalizationConstants.reef_2R);
-        poses.add(LocalizationConstants.reef_3L);
-        poses.add(LocalizationConstants.reef_3R);
-        poses.add(LocalizationConstants.reef_4L);
-        poses.add(LocalizationConstants.reef_4R);
-        poses.add(LocalizationConstants.reef_5L);
-        poses.add(LocalizationConstants.reef_5R);
-        poses.add(LocalizationConstants.reef_6L);
-        poses.add(LocalizationConstants.reef_6R);
+        poses.add(LocalizationConstants.reef_1L_blue);
+        poses.add(LocalizationConstants.reef_1R_blue);
+        poses.add(LocalizationConstants.reef_2L_blue);
+        poses.add(LocalizationConstants.reef_2R_blue);
+        poses.add(LocalizationConstants.reef_3L_blue);
+        poses.add(LocalizationConstants.reef_3R_blue);
+        poses.add(LocalizationConstants.reef_4L_blue);
+        poses.add(LocalizationConstants.reef_4R_blue);
+        poses.add(LocalizationConstants.reef_5L_blue);
+        poses.add(LocalizationConstants.reef_5R_blue);
+        poses.add(LocalizationConstants.reef_6L_blue);
+        poses.add(LocalizationConstants.reef_6R_blue);
+
+        poses.add(LocalizationConstants.reef_1L_red);
+        poses.add(LocalizationConstants.reef_1R_red);
+        poses.add(LocalizationConstants.reef_2L_red);
+        poses.add(LocalizationConstants.reef_2R_red);
+        poses.add(LocalizationConstants.reef_3L_red);
+        poses.add(LocalizationConstants.reef_3R_red);
+        poses.add(LocalizationConstants.reef_4L_red);
+        poses.add(LocalizationConstants.reef_4R_red);
+        poses.add(LocalizationConstants.reef_5L_red);
+        poses.add(LocalizationConstants.reef_5R_red);
+        poses.add(LocalizationConstants.reef_6L_red);
+        poses.add(LocalizationConstants.reef_6R_red);
 
         alignmentPID_X = new ProfiledPIDController(DriveConstants.PathKP, DriveConstants.PathKI, DriveConstants.PathKD, DriveConstants.AlignConstraints);
         alignmentPID_Y = new ProfiledPIDController(DriveConstants.PathKP, DriveConstants.PathKI, DriveConstants.PathKD, DriveConstants.AlignConstraints);
