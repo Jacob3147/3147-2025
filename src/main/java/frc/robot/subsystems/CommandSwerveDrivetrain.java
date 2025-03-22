@@ -92,6 +92,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
 
         SmartDashboard.putData("Field", field);
+        LimelightPose.setAlliance(DriverStation.getAlliance().get());
     }
 
     private void configureAutoBuilder() {
@@ -163,7 +164,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
-        //LimelightPose.evaluate(getState().Pose, getState().Speeds, applyVisionMeasurement);
+        LimelightPose.evaluate(getState().Pose, getState().Speeds, applyVisionMeasurement);
 
         field.setRobotPose(getState().Pose);
         
@@ -171,7 +172,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     /* Takes a VisionMeasurement produced by LimelightPose and adds it to the Pose Estimator */
     Consumer<VisionMeasurement> applyVisionMeasurement = meas -> {
-        super.addVisionMeasurement(meas.pose, meas.timestampFPGA, meas.StdDevs);
+
+        super.addVisionMeasurement(meas.pose, Utils.fpgaToCurrentTime(meas.timestampFPGA), meas.StdDevs);
         field.getObject(meas.LL_name).setPose(meas.pose);
     };
    

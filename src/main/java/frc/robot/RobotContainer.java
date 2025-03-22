@@ -160,10 +160,10 @@ public class RobotContainer
         */
         
         //Button box decides which state will be next
-        buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L4_CORAL));
-        buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L3_CORAL));
-        buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L2_CORAL));
-        buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.queued = ElevatorState.L1_CORAL));
+        buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L4_CORAL));
+        buttonBox.button(2).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L3_CORAL));
+        buttonBox.button(3).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L2_CORAL));
+        buttonBox.button(4).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L1_CORAL));
         buttonBox.button(5).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.NEUTRAL)); //5 is labeled net
         buttonBox.button(6).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.LOADING)
                                  

@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.55875,
-        "y": 5.32175
+        "x": 3.464446721311475,
+        "y": 5.457530737704917
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.056315834187589,
-        "y": 4.983862266011456
+        "x": 3.962012555499064,
+        "y": 5.119643003716373
       },
       "isLocked": false,
       "linkedName": "end of our-D"
     },
     {
       "anchor": {
-        "x": 1.43325,
-        "y": 7.2425
+        "x": 1.1268442622950818,
+        "y": 7.519415983606557
       },
       "prevControl": {
-        "x": 1.75149574600802,
-        "y": 6.621940958411484
+        "x": 1.445090008303102,
+        "y": 6.898856942018041
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 126.20945681718605
+    "rotation": -54.926560161299726
   },
   "reversed": false,
   "folder": "our barge",

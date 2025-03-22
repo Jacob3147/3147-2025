@@ -80,6 +80,8 @@ public class DriveToPose extends Command
         alignmentPID_Theta.reset(init.getRotation().getRadians());
 
         target = init.nearest(poses);
+
+        m_swerve.field.getObject("align-target").setPose(target);
     }
 
     @Override

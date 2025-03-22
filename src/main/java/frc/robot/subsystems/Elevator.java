@@ -92,7 +92,7 @@ public class Elevator extends SubsystemBase
 
     VoltageOut voltage = new VoltageOut(0);
 
-    DigitalInput beam_break;
+    boolean beam_break = false;
     public BooleanSupplier beam_break_supplier = () -> false;
 
     public boolean manual_feed_down = false;
@@ -105,7 +105,6 @@ public class Elevator extends SubsystemBase
         this.throttleSupplier = throttleSupplier;
         tomahawk_encoder = new DutyCycleEncoder(0);
         pivot_encoder = new DutyCycleEncoder(1);
-        beam_break = new DigitalInput(2);
 
 
         tomahawk       = new TalonFX(tomahawk_ID,        "rio");
@@ -197,8 +196,8 @@ public class Elevator extends SubsystemBase
 
         tomahawk.setPosition(tomahawk_encoder.get() + tomahawk_offset);
         pivot.setPosition((pivot_encoder.get() > 0.8) ? pivot_encoder.get() + pivot_offset - 1 : pivot_encoder.get() + pivot_offset);
-        
-
+        //tomahawk.setPosition(-0.23);
+        //pivot.setPosition(0.17);
     }    
 
     double throttle_adjust_coral_wrist;
@@ -209,7 +208,7 @@ public class Elevator extends SubsystemBase
     @Override
     public void periodic() 
     {
-        beam_break_supplier = () -> beam_break.get();
+        beam_break_supplier = () -> beam_break;
         
         minion_current = coral_intake.getStatorCurrent(true).getValueAsDouble();
         minion_delta = Math.abs(minion_current - minion_current_prev);
@@ -220,6 +219,11 @@ public class Elevator extends SubsystemBase
                 if(minion_current > 3 && minion_delta > 1)
                 {
                     state = ElevatorState.NEUTRAL;
+                    beam_break = true;
+                }
+                else
+                {
+                    beam_break = false;
                 }
             }
         }
@@ -271,7 +275,6 @@ public class Elevator extends SubsystemBase
         SmartDashboard.putNumber("pivot encoder", pivot_encoder_position);
         SmartDashboard.putNumber("throttle", throttle);
 
-        SmartDashboard.putBoolean("beam break", beam_break.get());
 
         SmartDashboard.putString("state", state.toString());
         SmartDashboard.putString("queued", queued.toString());

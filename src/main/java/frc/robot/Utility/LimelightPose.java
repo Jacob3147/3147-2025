@@ -5,6 +5,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Utility.Constants.LocalizationConstants;
 import java.util.Optional;
@@ -23,6 +24,18 @@ public class LimelightPose
     
     }
 
+    public static void setAlliance(Alliance alliance)
+    {
+        if(alliance == Alliance.Red)
+        {
+            LimelightHelpers.setPipelineIndex(LL2,0);
+        }
+        else
+        {
+            LimelightHelpers.setPipelineIndex(LL2,1);
+        }
+    }
+
     public static void evaluate(Pose2d pose, ChassisSpeeds speeds, Consumer<VisionMeasurement> applyPose)
     {
         /*
@@ -33,7 +46,7 @@ public class LimelightPose
         If the optional is present, the Consumer function is run and is passed the value of the optional
         Since we know the type T, whatever parameter I use is assumed to be that type. So I can make a lambda with (p) -> and it is known to be the Pose2d
         */
-        evaluate_single_LL_rev2(LL1, pose, speeds).ifPresent(applyPose);
+        //evaluate_single_LL_rev2(LL1, pose, speeds).ifPresent(applyPose);
         evaluate_single_LL_rev2(LL2, pose, speeds).ifPresent(applyPose);
 
     }
@@ -47,68 +60,70 @@ public class LimelightPose
         LimelightHelpers.PoseEstimate MT1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(LL);
         LimelightHelpers.PoseEstimate MT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LL);
 
-        double PoseDiff_MT1 = MT1.pose.getTranslation().getDistance(pose.getTranslation());
-        double PoseDiff_MT2 = MT2.pose.getTranslation().getDistance(pose.getTranslation());
-
-        double TagCount_MT1 = MT1.tagCount;
-        double TagCount_MT2 = MT2.tagCount;
-
-        double AvgArea_MT1 = MT1.avgTagArea;
-        double AvgArea_MT2 = MT2.avgTagArea;
-        
-        double velocityTranslation = Math.sqrt(Math.pow(speeds.vxMetersPerSecond,2) + Math.pow(speeds.vyMetersPerSecond,2));
-        double velocityRotation = Math.toDegrees(speeds.omegaRadiansPerSecond);
-
-        double xyDev;
-        double rotDev;
-        
-        //I'm only trusting MT1 when it's really good, but if it is I'll trust it pretty solidly and let it update the heading
-        if(TagCount_MT1 >= 2 && AvgArea_MT1 > 0.2 && PoseDiff_MT1 < 0.5)
+        if(MT1 != null && MT2 != null)
         {
-            if(velocityTranslation < 1 )
-            {
-                xyDev = 0.2;
-            }
-            else
-            {
-                xyDev = 0.5;
-            }
+            double PoseDiff_MT1 = MT1.pose.getTranslation().getDistance(pose.getTranslation());
+            double PoseDiff_MT2 = MT2.pose.getTranslation().getDistance(pose.getTranslation());
 
-            if(velocityRotation < 15)
-            {
-                rotDev = 5;
-            }
-            else if(velocityRotation < 45)
-            {
-                rotDev = 10;
-            }
-            else
-            {
-                rotDev = 20;
-            }
+            double TagCount_MT1 = MT1.tagCount;
+            double TagCount_MT2 = MT2.tagCount;
 
-            measurement.set(MT1.pose, MT1.timestampSeconds, xyDev, rotDev, LL);
-            return Optional.of(measurement);
-        }
+            double AvgArea_MT1 = MT1.avgTagArea;
+            double AvgArea_MT2 = MT2.avgTagArea;
+            
+            double velocityTranslation = Math.sqrt(Math.pow(speeds.vxMetersPerSecond,2) + Math.pow(speeds.vyMetersPerSecond,2));
+            double velocityRotation = Math.toDegrees(speeds.omegaRadiansPerSecond);
 
-        if(velocityRotation < 90)
-        {
-            if(TagCount_MT2 >= 2 && AvgArea_MT2 > 0.1 )
+            double xyDev = 1;
+            double rotDev = 1;
+            
+            //I'm only trusting MT1 when it's really good, but if it is I'll trust it pretty solidly and let it update the heading
+            if(TagCount_MT1 >= 2 && AvgArea_MT1 > 0.2 && PoseDiff_MT1 < 0.5)
             {
-                xyDev = 0.2;
-                measurement.set(MT2.pose, MT2.timestampSeconds, xyDev,9999999, LL);
+                if(velocityTranslation < 1 )
+                {
+                    xyDev = 0.2;
+                }
+                else
+                {
+                    xyDev = 0.5;
+                }
+
+                if(velocityRotation < 15)
+                {
+                    rotDev = 5;
+                }
+                else if(velocityRotation < 45)
+                {
+                    rotDev = 10;
+                }
+                else
+                {
+                    rotDev = 20;
+                }
+
+                measurement.set(MT1.pose, MT1.timestampSeconds, xyDev, rotDev, LL);
                 return Optional.of(measurement);
             }
 
-            if(TagCount_MT2 == 1 && AvgArea_MT2 > 0.6 && PoseDiff_MT2 < 0.5)
+            if(velocityRotation < 90)
             {
-                xyDev = 0.5;
-                measurement.set(MT2.pose, MT2.timestampSeconds,xyDev,9999999, LL);
-                return Optional.of(measurement);
+                if(TagCount_MT2 >= 2 && AvgArea_MT2 > 0.1 )
+                {
+                    xyDev = 0.1;
+                    measurement.set(MT2.pose, MT2.timestampSeconds, xyDev,9999999, LL);
+                    return Optional.of(measurement);
+                }
+
+                if(TagCount_MT2 == 1 && AvgArea_MT2 > 0.6 && PoseDiff_MT2 < 0.5)
+                {
+                    xyDev = 0.3;
+                    measurement.set(MT2.pose, MT2.timestampSeconds,xyDev,9999999, LL);
+                    return Optional.of(measurement);
+                }
+
             }
-
         }
-
         return Optional.empty();
     }
 

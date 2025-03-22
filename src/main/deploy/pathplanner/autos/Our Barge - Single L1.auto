@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "Go to L4"
@@ -53,9 +47,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "IJ to load"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "IJ to load"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Loading"
+                }
+              }
+            ]
           }
         }
       ]

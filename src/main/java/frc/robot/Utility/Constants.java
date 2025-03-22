@@ -100,8 +100,8 @@ public final class Constants
 
     public static final class LocalizationConstants
     {
-        public static String limelight_1_name = "LL_one";
-        public static String limelight_2_name = "LL_two";
+        public static String limelight_1_name = "limelight-one";
+        public static String limelight_2_name = "limelight-two";
 
         public static final double field_length_meters = 17.548;
         public static final double field_width_meters = 8.052;
