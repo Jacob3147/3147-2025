@@ -36,7 +36,7 @@ public class LimelightPose
         }
     }
 
-    public static void evaluate(Pose2d pose, ChassisSpeeds speeds, Consumer<VisionMeasurement> applyPose)
+    public static Optional<VisionMeasurement> evaluate(Pose2d pose, ChassisSpeeds speeds)
     {
         /*
         An Optional<T> object holds a value of type T that may or may not exist, while avoiding null pointer exceptions
@@ -47,7 +47,7 @@ public class LimelightPose
         Since we know the type T, whatever parameter I use is assumed to be that type. So I can make a lambda with (p) -> and it is known to be the Pose2d
         */
         //evaluate_single_LL_rev2(LL1, pose, speeds).ifPresent(applyPose);
-        evaluate_single_LL_rev2(LL2, pose, speeds).ifPresent(applyPose);
+        return evaluate_single_LL_rev2(LL2, pose, speeds);
 
     }
 

@@ -108,23 +108,23 @@ public final class Constants
     
         public static final Translation2d field_center = new Translation2d(field_length_meters / 2, field_width_meters / 2);
         
-        public static Pose2d reef_1R = new Pose2d(3.22,3.86,new Rotation2d(0)); 
-        public static Pose2d reef_1L = new Pose2d(3.22,4.19,new Rotation2d(0)); 
+        public static Pose2d reef_1R = new Pose2d(3.22,3.86,new Rotation2d(Units.degreesToRadians(0))); 
+        public static Pose2d reef_1L = new Pose2d(3.22,4.19,new Rotation2d(Units.degreesToRadians(0))); 
 
-        public static Pose2d reef_2R = new Pose2d(4.00,2.84,new Rotation2d(60)); 
-        public static Pose2d reef_2L = new Pose2d(3.71,3.01,new Rotation2d(60)); 
+        public static Pose2d reef_2R = new Pose2d(4.00,2.84,new Rotation2d(Units.degreesToRadians(60))); 
+        public static Pose2d reef_2L = new Pose2d(3.71,3.01,new Rotation2d(Units.degreesToRadians(60))); 
 
-        public static Pose2d reef_3R = new Pose2d(5.26,3.02,new Rotation2d(120)); 
-        public static Pose2d reef_3L = new Pose2d(4.97,2.85,new Rotation2d(120)); 
+        public static Pose2d reef_3R = new Pose2d(5.26,3.02,new Rotation2d(Units.degreesToRadians(120))); 
+        public static Pose2d reef_3L = new Pose2d(4.97,2.85,new Rotation2d(Units.degreesToRadians(120))); 
 
-        public static Pose2d reef_4R = new Pose2d(5.75,4.19,new Rotation2d(180)); 
-        public static Pose2d reef_4L = new Pose2d(5.75,3.86,new Rotation2d(180)); 
+        public static Pose2d reef_4R = new Pose2d(5.75,4.19,new Rotation2d(Units.degreesToRadians(180))); 
+        public static Pose2d reef_4L = new Pose2d(5.75,3.86,new Rotation2d(Units.degreesToRadians(180))); 
 
-        public static Pose2d reef_5R = new Pose2d(4.98,5.20,new Rotation2d(240)); 
-        public static Pose2d reef_5L = new Pose2d(5.26,5.03,new Rotation2d(240)); 
+        public static Pose2d reef_5R = new Pose2d(4.98,5.20,new Rotation2d(Units.degreesToRadians(240))); 
+        public static Pose2d reef_5L = new Pose2d(5.26,5.03,new Rotation2d(Units.degreesToRadians(240))); 
 
-        public static Pose2d reef_6R = new Pose2d(3.72,5.03,new Rotation2d(300)); 
-        public static Pose2d reef_6L = new Pose2d(4.01,5.19,new Rotation2d(300)); 
+        public static Pose2d reef_6R = new Pose2d(3.72,5.03,new Rotation2d(Units.degreesToRadians(300))); 
+        public static Pose2d reef_6L = new Pose2d(4.01,5.19,new Rotation2d(Units.degreesToRadians(300))); 
 
         
         //all poses are for blue alliance. If you create a pose, add it to this function to transform it for red.

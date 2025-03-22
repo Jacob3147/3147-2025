@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -164,17 +165,23 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
-        LimelightPose.evaluate(getState().Pose, getState().Speeds, applyVisionMeasurement);
+        applyVisionMeasurement(LimelightPose.evaluate(getState().Pose, getState().Speeds));
 
         field.setRobotPose(getState().Pose);
         
     }
 
+    VisionMeasurement meas;
     /* Takes a VisionMeasurement produced by LimelightPose and adds it to the Pose Estimator */
-    Consumer<VisionMeasurement> applyVisionMeasurement = meas -> {
-
-        super.addVisionMeasurement(meas.pose, Utils.fpgaToCurrentTime(meas.timestampFPGA), meas.StdDevs);
-        field.getObject(meas.LL_name).setPose(meas.pose);
+    void applyVisionMeasurement (Optional<VisionMeasurement> measurement)
+    {
+        if(measurement.isPresent())
+        {
+            meas = measurement.get();
+            super.addVisionMeasurement(meas.pose, Utils.fpgaToCurrentTime(meas.timestampFPGA), meas.StdDevs);
+            field.getObject(meas.LL_name).setPose(meas.pose);
+        }
+        
     };
    
 

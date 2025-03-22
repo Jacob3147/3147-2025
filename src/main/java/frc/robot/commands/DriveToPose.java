@@ -112,15 +112,7 @@ public class DriveToPose extends Command
     @Override
     public boolean isFinished() 
     {
-
-        return
-        (
-            alignmentPID_X.getPositionError() < 0.03 
-            &&
-            alignmentPID_Y.getPositionError() < 0.03 
-            &&
-            alignmentPID_Theta.getPositionError() < Units.degreesToRadians(1)
-        );
+        return false;
     }
 
     @Override
