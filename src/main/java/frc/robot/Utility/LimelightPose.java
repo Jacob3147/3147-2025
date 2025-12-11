@@ -77,47 +77,43 @@ public class LimelightPose
             double xyDev = 1;
             double rotDev = 1;
             
-            //I'm only trusting MT1 when it's really good, but if it is I'll trust it pretty solidly and let it update the heading
+            /*//I'm only trusting MT1 when it's really good, but if it is I'll trust it pretty solidly and let it update the heading
             if(TagCount_MT1 >= 2 && AvgArea_MT1 > 0.2 && PoseDiff_MT1 < 0.5)
             {
                 if(velocityTranslation < 1 )
                 {
-                    xyDev = 0.2;
+                    xyDev = 0.01;
                 }
                 else
                 {
-                    xyDev = 0.5;
+                    xyDev = 0.1;
                 }
 
                 if(velocityRotation < 15)
                 {
-                    rotDev = 5;
+                    rotDev = 1;
                 }
                 else if(velocityRotation < 45)
                 {
                     rotDev = 10;
                 }
-                else
-                {
-                    rotDev = 20;
-                }
 
                 measurement.set(MT1.pose, MT1.timestampSeconds, xyDev, rotDev, LL);
                 return Optional.of(measurement);
-            }
+            }*/
 
             if(velocityRotation < 90)
             {
                 if(TagCount_MT2 >= 2 && AvgArea_MT2 > 0.1 )
                 {
-                    xyDev = 0.1;
+                    xyDev = 0.01;
                     measurement.set(MT2.pose, MT2.timestampSeconds, xyDev,9999999, LL);
                     return Optional.of(measurement);
                 }
 
-                if(TagCount_MT2 == 1 && AvgArea_MT2 > 0.6 && PoseDiff_MT2 < 0.7)
+                if(TagCount_MT2 == 1 && AvgArea_MT2 > 0.1)
                 {
-                    xyDev = 0.3;
+                    xyDev = 0.1;
                     measurement.set(MT2.pose, MT2.timestampSeconds,xyDev,9999999, LL);
                     return Optional.of(measurement);
                 }

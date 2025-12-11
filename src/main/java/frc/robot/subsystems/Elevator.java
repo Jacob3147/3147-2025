@@ -74,18 +74,6 @@ public class Elevator extends SubsystemBase
     VoltageOut coral_volt = new VoltageOut(0);
     
 
-    TalonFX pivot;
-    TalonFXConfiguration pivot_config;
-    double pivot_position;
-    double pivot_setpoint;
-    DutyCycleEncoder pivot_encoder;
-    MotionMagicExpoVoltage pivot_motion_request = new MotionMagicExpoVoltage(0);
-
-    double pivot_kraken_position;
-    double pivot_encoder_position;
-    double pivot_temp;
-    double pivot_offset = -0.01;
-
 
     Supplier<Double> throttleSupplier;
     double throttle;
@@ -104,14 +92,12 @@ public class Elevator extends SubsystemBase
 
         this.throttleSupplier = throttleSupplier;
         tomahawk_encoder = new DutyCycleEncoder(0);
-        pivot_encoder = new DutyCycleEncoder(1);
+       
 
 
         tomahawk       = new TalonFX(tomahawk_ID,        "rio");
         elevator       = new TalonFX (elevator_ID,       "rio");
         coral_intake   = new TalonFXS(coral_intake_ID,   "rio");
-        pivot          = new TalonFX(pivot_ID,           "rio");
-
 
         tomahawk_config       = new TalonFXConfiguration();
         Slot0Configs tomahawkSlot0 = tomahawk_config.Slot0;
@@ -136,13 +122,6 @@ public class Elevator extends SubsystemBase
         CurrentLimitsConfigs coral_intake_CurrentLimit = coral_intake_config.CurrentLimits;
         MotorOutputConfigs coral_intake_outputConfig = coral_intake_config.MotorOutput;
         coral_intake_config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
-
-        pivot_config = new TalonFXConfiguration();
-        Slot0Configs pivotSlot0 = pivot_config.Slot0;
-        CurrentLimitsConfigs pivotCurrentLimit = pivot_config.CurrentLimits;
-        MotionMagicConfigs pivotMotionMagicConfigs =  pivot_config.MotionMagic;
-        FeedbackConfigs pivotFeedback = pivot_config.Feedback;
-        MotorOutputConfigs pivotOutputConfig = pivot_config.MotorOutput;
 
 
         
@@ -177,27 +156,13 @@ public class Elevator extends SubsystemBase
         coral_intake_outputConfig.Inverted = InvertedValue.Clockwise_Positive;
 
         
-        pivotSlot0.withGravityType(GravityTypeValue.Arm_Cosine)
-                     .withKV(pivot_KV).withKS(pivot_KS).withKG(pivot_KG)
-                     .withKP(pivot_KP).withKI(pivot_KI).withKD(pivot_KD);
-        pivotCurrentLimit.withStatorCurrentLimit(40);
-        pivotMotionMagicConfigs.withMotionMagicAcceleration(1)
-                          .withMotionMagicCruiseVelocity(1);
-        pivotFeedback.SensorToMechanismRatio = pivot_ratio;
-        pivotOutputConfig.NeutralMode = NeutralModeValue.Brake;
-        pivotOutputConfig.Inverted = InvertedValue.CounterClockwise_Positive;
-
-        
         tomahawk    .getConfigurator().apply(tomahawk_config);
         elevator    .getConfigurator().apply(elevator_config);
         coral_intake.getConfigurator().apply(coral_intake_config);
-        pivot       .getConfigurator().apply(pivot_config);
 
 
         tomahawk.setPosition(tomahawk_encoder.get() + tomahawk_offset);
-        pivot.setPosition((pivot_encoder.get() > 0.8) ? pivot_encoder.get() + pivot_offset - 1 : pivot_encoder.get() + pivot_offset);
         //tomahawk.setPosition(-0.23);
-        //pivot.setPosition(0.17);
     }    
 
     double throttle_adjust_coral_wrist;
@@ -242,7 +207,6 @@ public class Elevator extends SubsystemBase
 
         throttle = throttleSupplier.get();
         voltage.Output = throttle*5;
-        double pivot_sp_temp = ((throttle + 1) / 4);
         
         
         //throttle_adjust_coral_wrist = throttle * -1 * Units.degreesToRadians(5);
@@ -252,18 +216,15 @@ public class Elevator extends SubsystemBase
         coral_intake.setControl(coral_volt);
         elevatorControl(elevator_setpoint);
         tomahawkControl(tomahawk_setpoint);
-        pivotControl(pivot_setpoint);
 
 
         //Kraken encoder
         elevator_position = elevator.getPosition(true).getValueAsDouble();
         tomahawk_kraken_position = tomahawk.getPosition(true).getValueAsDouble();
-        pivot_kraken_position = pivot.getPosition(true).getValueAsDouble();
 
         //thru bore
         tomahawk_position = Units.rotationsToRadians(tomahawk_encoder.get()) + tomahawk_offset;
 
-        pivot_encoder_position = (pivot_encoder.get() > 0.8) ? pivot_encoder.get() + pivot_offset - 1 : pivot_encoder.get() + pivot_offset;
         
         SmartDashboard.putNumber("minion current", minion_current);
         SmartDashboard.putNumber("minion current prev", minion_current_prev);
@@ -271,8 +232,6 @@ public class Elevator extends SubsystemBase
         SmartDashboard.putNumber("elevator", elevator_position);
         SmartDashboard.putNumber("tomahawk kraken", tomahawk_kraken_position);
         SmartDashboard.putNumber("tomahawk encoder", tomahawk_position);
-        SmartDashboard.putNumber("pivot kraken", pivot_kraken_position);
-        SmartDashboard.putNumber("pivot encoder", pivot_encoder_position);
         SmartDashboard.putNumber("throttle", throttle);
 
 
@@ -283,64 +242,55 @@ public class Elevator extends SubsystemBase
         {
             case NEUTRAL:
                 elevator_setpoint = 0.2;
-                tomahawk_setpoint = -0.2;
-                pivot_setpoint = 0.17;
+                tomahawk_setpoint = -0.15;
                 coral_volt.Output = 0;
                 break;
 
             case LOADING:
                 elevator_setpoint = 0.2;
                 tomahawk_setpoint = -0.23;
-                pivot_setpoint = 0.17;
                 coral_volt.Output = 2;
                 break;
 
             case L1_CORAL:
                 elevator_setpoint = 1;
                 tomahawk_setpoint = -0.18;
-                pivot_setpoint = 0.17;
                 coral_volt.Output = 0;
                 break;
 
             case L2_CORAL:
                 elevator_setpoint = 2.5;
                 tomahawk_setpoint = -0.2;
-                pivot_setpoint = 0.17;
                 coral_volt.Output = 0;
                 break;
 
             case L3_CORAL:
                 elevator_setpoint = 4.5;
                 tomahawk_setpoint = -0.2;
-                pivot_setpoint = 0.17;
                 coral_volt.Output = 0;
                 break;
 
             case L4_CORAL:
                 elevator_setpoint = 5.4;
                 tomahawk_setpoint = 0.05;
-                pivot_setpoint = 0.17;
                 coral_volt.Output = 0;
                 break;
 
             case HIGH_ALGAE:
                 elevator_setpoint = 0.5;
                 tomahawk_setpoint = 0;
-                pivot_setpoint = 0.17;
                 coral_volt.Output = 12;
                 break;
 
             case LOW_ALGAE:
                 elevator_setpoint = 0;
                 tomahawk_setpoint = -0.1;
-                pivot_setpoint = 0.17;
                 coral_volt.Output = 12;
                 break;
 
             case CLIMBING:
                 elevator_setpoint = 0.2;
                 tomahawk_setpoint = -0.15;
-                pivot_setpoint = 0.45;
                 coral_volt.Output = 0;
                 break;
 
@@ -408,10 +358,6 @@ public class Elevator extends SubsystemBase
         tomahawk.setControl(tomahawk_motion_request);
     }
 
-    void pivotControl(double SP)
-    {
-        pivot_motion_request.Position = SP;
-        pivot.setControl(pivot_motion_request);
-    }
+
 
 }

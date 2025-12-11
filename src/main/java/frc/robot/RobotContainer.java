@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Utility.TunerConstants;
 import frc.robot.Utility.Constants.LocalizationConstants;
 import frc.robot.commands.DriveToPose;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
@@ -36,11 +35,8 @@ public class RobotContainer
     
 
     private final Telemetry logger = new Telemetry(TunerConstants.kMaxSpeed);
-
-    //private final CommandXboxController joystick = new CommandXboxController(0);
     private final CommandJoystick joystick = new CommandJoystick(0);
     private final CommandGenericHID buttonBox = new CommandGenericHID(1);
-    private final CommandGenericHID buttonBox2 = new CommandGenericHID(2);
 
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     
@@ -51,9 +47,7 @@ public class RobotContainer
             .withSteerRequestType(SteerRequestType.Position)
             .withDesaturateWheelSpeeds(true);
 
-    private final Elevator elevator = new Elevator(() -> joystick.getThrottle());
-    private final Climber climber = new Climber(() -> joystick.getThrottle());
-
+    private final Elevator elevator = new Elevator(() -> 0.0);
     private final SendableChooser<Command> autoChooser;
     Supplier<Pose2d> target_pose = () -> LocalizationConstants.reef_1L_blue;
 
@@ -87,9 +81,11 @@ public class RobotContainer
             drivetrain.applyRequest(() ->
                 drive
                 .withVelocityX((-1 * joystick.getY()) 
-                               * TunerConstants.kMaxSpeed) // Drive forward with negative Y (forward)
+                               * TunerConstants.kMaxSpeed
+                               * (0.75 + (-0.25)*joystick.getThrottle())) // Drive forward with negative Y (forward)
                 .withVelocityY((-1*joystick.getX()) 
-                               * TunerConstants.kMaxSpeed) // Drive left with negative X (left)
+                               * TunerConstants.kMaxSpeed
+                               * (0.75 + (-0.25)*joystick.getThrottle())) // Drive left with negative X (left)
                 .withRotationalRate((joystick.getTwist() > 0 ? -1 : 1)
                                     * Math.pow((-1*joystick.getTwist()),2) 
                                     * TunerConstants.kMaxAngularRate)) // Drive counterclockwise with negative X (left)
@@ -100,8 +96,15 @@ public class RobotContainer
             joystick.trigger().whileTrue(Commands.run(() -> elevator.score()));
 
             joystick.button(7).or(joystick.button(8)).onTrue(
-                drivetrain.runOnce(() -> drivetrain.seedFieldCentric())
-                .andThen(Commands.runOnce(() -> drivetrain.resetPose(new Pose2d(3.141, 4.031, new Rotation2d(0))))));
+                drivetrain.runOnce(
+                    () -> drivetrain.seedFieldCentric()
+                )
+                .andThen(
+                    Commands.runOnce(
+                        () -> drivetrain.resetPose(new Pose2d(14.3737, 4.013, new Rotation2d(Math.toRadians(180))))
+                    )
+                )
+            );
 
             joystick.button(11).or(joystick.button(12)).onTrue(
                 Commands.runOnce(() -> elevator.state = elevator.queued));
@@ -115,49 +118,7 @@ public class RobotContainer
                 Commands.startEnd(() -> elevator.manual_feed_up = true,
                                   () -> elevator.manual_feed_up = false));
  
-        /*
-        buttonBox2.button(1)
-            .and(buttonBox2.button(10))
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_1L));
-        buttonBox2.button(1)
-            .and(buttonBox2.button(10).negate())
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_1R));
-
-        buttonBox2.button(2)
-            .and(buttonBox2.button(10))
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_2L));
-        buttonBox2.button(2)
-            .and(buttonBox2.button(10).negate())
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_2R));
-
-        buttonBox2.button(3)
-            .and(buttonBox2.button(10))
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_3L));
-        buttonBox2.button(3)
-            .and(buttonBox2.button(10).negate())
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_3R));
-
-        buttonBox2.button(4)
-            .and(buttonBox2.button(10))
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_4L));
-        buttonBox2.button(4)
-            .and(buttonBox2.button(10).negate())
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_4R));
-
-        buttonBox2.button(5)
-            .and(buttonBox2.button(10))
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_5L));
-        buttonBox2.button(5)
-            .and(buttonBox2.button(10).negate())
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_5R));
-
-        buttonBox2.button(6)
-            .and(buttonBox2.button(10))
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_6L));
-        buttonBox2.button(6)
-            .and(buttonBox2.button(10).negate())
-                .onTrue(Commands.runOnce(() -> target_pose = () -> LocalizationConstants.reef_6R));
-        */
+      
         
         //Button box decides which state will be next
         buttonBox.button(1).onTrue(Commands.runOnce(() -> elevator.state = ElevatorState.L4_CORAL));
@@ -169,19 +130,8 @@ public class RobotContainer
                                  
         .andThen(Commands.runOnce(() -> elevator.load_start_time = Timer.getFPGATimestamp())));
 
-        buttonBox.button(7).whileTrue(
-            Commands.sequence(
-                Commands.runOnce(() -> elevator.state = ElevatorState.CLIMBING),
-                Commands.run(() -> climber.up())
-            )); //PROCESSOR = CLIMB IN
-
-        buttonBox.button(8).whileTrue(
-            Commands.sequence(
-                Commands.runOnce(() -> elevator.state = ElevatorState.CLIMBING),
-                Commands.run(() -> climber.out())
-            )); //GROUND ALGAE = CLIMB OUT
-
-        buttonBox.button(7).or(buttonBox.button(8)).onFalse(Commands.runOnce(() -> climber.stop()));
+       
+    
 
         buttonBox.button(9).whileTrue(
             Commands.startEnd(() -> elevator.state = ElevatorState.HIGH_ALGAE,
@@ -189,11 +139,6 @@ public class RobotContainer
         buttonBox.button(10).whileTrue(
             Commands.startEnd(() -> elevator.state = ElevatorState.LOW_ALGAE,
                               () -> elevator.state = ElevatorState.NEUTRAL));
-
-
-        
-
-
         
 
         drivetrain.registerTelemetry(logger::telemeterize);
